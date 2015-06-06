@@ -1,44 +1,37 @@
 <!DOCTYPE html> <!-- we are using html5, so this is enough -->
-		<!-- Use this as a wapper to control dimensions of the whole page -->
-		<head>
-			<link rel="stylesheet" type="text/css" href="a2.css"></link>
-			
-			<script src="a2.js"></script> 
-			
-			<title>Bug Game</title> 
-			<!-- We can change the title later -->
+	<!-- Use this as a wapper to control dimensions of the whole page -->
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" type="text/css" href="a2.css">
+		<script language="javascript" type="text/javascript" src="a2.js"></script> 
+		<title>Bug Game</title> 
+		<link rel="shortcut Icon" type="image/x-icon" href="img/gameIcon.png">
+	</head>
+	<body>
+		<!-- Start Page -->
+		<header>
+			<h1>Game Menu</h1>
+		</header>
+		<h2>Level: </h2>
+		<form> <!-- action is used when you need to send the data to a file, since we don't need one, I'm getting rid of this attribute -->
+			<input type="radio" name="level" value="1">1</input>
+			<input type="radio" name="level" value="2">2</input>				
+		</form>
+		<form>
+			<input type="submit" name="Start Game" value="Start Game"></input>
+		</form>
+		<p id="highScore">High Score: </p>
 
-					<!--
-					Add link for icon
-					Also don't forget to validate your XHTML and CSS code!
-				-->
-
-				<meta>
-				<!-- Metadata here -->
-			</meta>
-		</head>
-		<body>
-			<!-- Insert start page menu here -->
-			<header>
-				<h1>Game Menu</h1>
-			</header>
-			<form> <!-- action is used when you need to send the data to a file, since we don't need one, I'm getting rid of this attribute -->
-				<h2>Level: </h2>
-				<input type="radio" name="level" value="1">1</input>
-				<input type="radio" name="level" value="2">2</input>				
-			</form>
-			<form>
-				<input type="submit" name="Start Game" value="Start Game"></input>
-			</form>
-			<p id="highScore">High Score: </p>
-		</body>
+		<!-- Game Page -->
 		<div id="infoBar">
-                	<div id="timer">
-               			<!-- Some JS function called here so that a timer can be used -->
-                	</div>
-                	<button type="button">Pause</button>	
-                </div>
-                <div id="viewPort">
-                	<!-- A bunch of JS calling here -->
-                </div>
+	    	<div id="timer">
+	   			<!-- Some JS function called here so that a timer can be used -->
+	    	</div>
+	    	<button type="button" id="pauseButton">Pause</button>
+	    	<div id="currentScore"></div>
+	    </div>
+	    <div id="viewPort">
+	    	<!-- A bunch of JS calling here -->
+	    </div>
+	</body>
 </html>
