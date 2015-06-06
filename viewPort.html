@@ -5,8 +5,11 @@
 PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
+	<div id="main">
+		<head>
 			<link rel="stylesheet" type="text/css" href="viewPort.css"></link>
+			
+			<!-- May need to move the script to a footer so the page will load faster -->
 			<script src="viewPort.js"></script> 
 			
 			<title>Bug Game</title> 
@@ -19,8 +22,21 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 			<meta>
             			<!-- Metadata here -->
 			</meta>
-        </head>
-        <body>
+        	</head>
+		<div class="body">
+        	<body>
                 <!-- Body goes here -->
-        </body>
+                	<div id="infoBar">
+                		<div id="timer">
+               			<!-- Some JS function called here so that a timer can be used -->
+                		</div>
+                		<button type="button">Pause</button>	
+                	</div>
+                	<div id="viewPort">
+                		<!-- A bunch of JS calling here -->
+                	</div>
+        	</body>
+        	</div>
+	</div>
+	
 </html>
