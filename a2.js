@@ -1,15 +1,39 @@
-function startGame() {
+window.onload = function() {
+	var startPage = document.getElementById("startPage");
+	var currentPage = 'startPage';
+	var gamePage = document.getElementById("gamePage");
+	var startButton = document.getElementById("startButton");
+	var pauseButton = document.getElementById("pauseButton");
+	var backButton = document.getElementById("backButton");
+
+	function startBackButtonOnclick() {
+		if (currentPage === 'startPage') {
+			startPage.style.display = 'none';
+			gamePage.style.display = 'block';
+			currentPage = 'gamePage';
+		} else {
+			startPage.style.display = 'block';
+			gamePage.style.display = 'none';
+			currentPage = 'startPage';
+		}
+	}
+
+	function startGame() {
         /* make a sound to start the game and maybe some other things? */
-}
+	}
 
-function pauseUnpause(){
-        /* If game is paused, resume. Otherwise pause. */
-}
+	function pauseUnpause(){
+	        /* If game is paused, resume. Otherwise pause. */
+	}
 
-function endGame(){
-        /* When the timer hits 0, this should be called to end the game */
-}
+	function endGame(){
+	        /* When the timer hits 0, this should be called to end the game */
+	}
 
-function animate(){
-        /* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
+	function animate(){
+	        /* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
+	}
+
+	startButton.onclick = startBackButtonOnclick;
+	backButton.onclick = startBackButtonOnclick;
 }
