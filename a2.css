@@ -1,16 +1,23 @@
-div.main{
-        /*debugging main -- border: 1px solid black;*/
-	padding: 20px;
-	margin: 20px;
-}
-
-div.body{
+/******************************************************
+ START PAGE
+ ******************************************************/
+body{
 	border: 1px solid black;
-	position: relative;
-	margin-left: auto;
-	margin-right: auto;
-	padding: 10px;
-	align-content: center;
+	margin: 0 auto;
+	padding: 0;
 	text-align: center;
 	width: 30%;
+}
+
+
+/******************************************************
+ GAME PAGE
+ ******************************************************/
+ 
+ div.infoBar{
+	
+}
+
+div.viewPort{
+	
 }
