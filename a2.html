@@ -9,29 +9,32 @@
 	</head>
 	<body>
 		<!-- Start Page -->
-		<header>
-			<h1>Game Menu</h1>
-		</header>
-		<h2>Level: </h2>
-		<form> <!-- action is used when you need to send the data to a file, since we don't need one, I'm getting rid of this attribute -->
-			<input type="radio" name="level" value="1">1</input>
-			<input type="radio" name="level" value="2">2</input>				
-		</form>
-		<form>
-			<input type="submit" name="Start Game" value="Start Game"></input>
-		</form>
-		<p id="highScore">High Score: </p>
+		<section id="startPage">	
+			<header>
+				<h1>Game Menu</h1>
+			</header>
+			<h2>Level: </h2>
+			<form> <!-- action is used when you need to send the data to a file, since we don't need one, I'm getting rid of this attribute -->
+				<input type="radio" name="level" value="1">1</input>
+				<input type="radio" name="level" value="2">2</input>				
+			</form>
+			<button type="button" id="startButton">Start Game</button>
+			<p id="highScore">High Score: </p>
+		</section>
 
 		<!-- Game Page -->
-		<div id="infoBar">
-	    	<div id="timer">
-	   			<!-- Some JS function called here so that a timer can be used -->
-	    	</div>
-	    	<button type="button" id="pauseButton">Pause</button>
-	    	<div id="currentScore"></div>
-	    </div>
-	    <div id="viewPort">
-	    	<!-- A bunch of JS calling here -->
-	    </div>
+		<section id="gamePage">
+			<div id="infoBar">
+		    	<div id="timer">
+		   			<!-- Some JS function called here so that a timer can be used -->
+		    	</div>
+		    	<button type="button" id="pauseButton">Pause</button>
+		    	<div id="currentScore"></div>
+		    </div>
+		    <div id="viewPort">
+		    	<!-- A bunch of JS calling here -->
+		    </div>
+		    <button type="button" id="backButton">Back</button> <!-- this is just for testing purpose -->
+	    </section>
 	</body>
 </html>
