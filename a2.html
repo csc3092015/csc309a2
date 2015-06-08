@@ -15,9 +15,9 @@
 				<h1>Game Menu</h1>
 			</header>
 			<h2>Level: </h2>
-			<form> <!-- action is used when you need to send the data to a file, since we don't need one, I'm getting rid of this attribute -->
-				<input type="radio" name="level" value="1">1</input>
-				<input type="radio" name="level" value="2">2</input>				
+			<form id="levelForm">
+				<input type="radio" name="levelRadioButton" value="1">1</input>
+				<input type="radio" name="levelRadioButton" value="2">2</input>				
 			</form>
 			<button type="button" id="startButton">Start Game</button>
 			<p id="highScore">High Score: </p>
@@ -33,7 +33,9 @@
 		    	<div id="currentScore"></div>
 		    </div>
 		    <div id="viewPort">
-		    	<!-- A bunch of JS calling here -->
+		    	<canvas id="viewPortCanvas" width="400" height="600">
+					Your browser does not support the HTML5 canvas tag.
+				</canvas>
 		    </div>
 		    <button type="button" id="backButton">Back</button> <!-- this is just for testing purpose -->
 	    </section>
