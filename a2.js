@@ -119,8 +119,6 @@ window.onload = function() {
 	        /* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
 	}
 	
-	
-	
 	/* Bug and Food Canvases */
 	var gameCanvas = document.getElementById("gameCanvas").getContext("2d");
 	
