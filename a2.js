@@ -92,10 +92,8 @@ window.onload = function() {
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
-				viewPortContext.arc(bugX, bugY, 20, 0, 2*Math.PI);
-				viewPortContext.fillStyle = "green";
-				viewPortContext.fill();
-				viewPortContext.stroke();
+				/* Should check bugType here and draw bug accordingly */
+				drawBug3(viewPortContext, bugX, bugY);
 			}, Math.random() * 3000);
 	}
 
@@ -120,7 +118,6 @@ window.onload = function() {
 	}
 	
 	/* Bug and Food Canvases */
-	var gameCanvas = document.getElementById("gameCanvas").getContext("2d");
 	
 	function drawApple(canvas, x, y){
 		canvas.beginPath();
@@ -343,6 +340,65 @@ window.onload = function() {
 		canvas.fillStyle = "White";
 		canvas.fill();
 		canvas.strokeStyle = "Black";
+		canvas.stroke();
+		
+		drawSmiley(canvas, x, y+10, 2)
+	}
+	
+	function drawBug3(canvas, x, y){
+		canvas.beginPath();
+		canvas.moveTo(x+6,y);
+		canvas.lineTo(x-6,y);
+		canvas.moveTo(x+6,y+4);
+		canvas.lineTo(x-6,y+4);
+		canvas.moveTo(x+6,y-4);
+		canvas.lineTo(x-6,y-4);
+		canvas.moveTo(x+6,y-8);
+		canvas.lineTo(x-6,y-8);
+		canvas.moveTo(x+6,y-12);
+		canvas.lineTo(x-6,y-12);
+		canvas.moveTo(x+6,y-16);
+		canvas.lineTo(x-6,y-16);
+		canvas.moveTo(x+6,y-20);
+		canvas.lineTo(x-6,y-20);
+		canvas.strokeStyle = "Orange";
+		canvas.stroke();
+		
+		canvas.scale(0.5, 1);
+		canvas.beginPath();
+		canvas.arc(x*2,y,6,0,2*Math.PI);
+		canvas.fillStyle = "Orange";
+		canvas.fill();
+		canvas.strokeStyle = "Orange";
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.scale(2, 1);
+		canvas.arc(x,y+11,5,0,2*Math.PI)
+		canvas.fillStyle = "Orange";
+		canvas.fill();
+		canvas.strokeStyle = "Orange";
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x,y-9,3,0,2*Math.PI)
+		canvas.fillStyle = "Orange";
+		canvas.fill();
+		canvas.strokeStyle = "Orange";
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x,y-15,3,0,2*Math.PI)
+		canvas.fillStyle = "Orange";
+		canvas.fill();
+		canvas.strokeStyle = "Orange";
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x,y-21,3,0,2*Math.PI)
+		canvas.fillStyle = "Orange";
+		canvas.fill();
+		canvas.strokeStyle = "Orange";
 		canvas.stroke();
 		
 		drawSmiley(canvas, x, y+10, 2)
