@@ -65,6 +65,7 @@ window.onload = function() {
 		}
 	}
 
+
 	var startBackButtonOnclick = function() {
 		if (currentPage === 'startPage') {
 			getLevel();
@@ -92,8 +93,15 @@ window.onload = function() {
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
+
 				/* Should check bugType here and draw bug accordingly */
 				drawBug3(viewPortContext, bugX, bugY);
+
+				// viewPortContext.arc(bugX, bugY, 20, 0, 2*Math.PI);
+				// viewPortContext.fillStyle = "green";
+				// viewPortContext.fill();
+				// viewPortContext.stroke();
+
 			}, Math.random() * 3000);
 	}
 
