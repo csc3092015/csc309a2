@@ -54,6 +54,38 @@ window.onload = function() {
 		};
 		return bug;
 	}
+	
+	var makeFood = function(foodX, foodY) {
+		var foodType;
+		/* Some food can last longer than others */
+		var foodLife;
+		/* subtract some score when food is eaten */
+		var foodScore;
+		var foodProbability = Math.random();
+		if (foodProbability < 0.33){
+			foodType = "apple";
+			foodLife = 1;
+			foodScore = 1;
+		}
+		else if(foodProbability < 0.66){
+			foodType = "orange";
+			foodLife = 2;
+			foodScore = 2;
+		}
+		else{
+			foodType = "banana";
+			foodLife = 3;
+			foodScore = 3;
+		}
+		var food = {
+			foodType: foodType,
+			foodLife: foodLife,
+			foodScore: foodScore,
+			foodX: foodX,
+			foodY: foodY
+		};
+		return food;
+	}
 
 	var getLevel = function() {
 		var levelRadioButtons = levelForm.elements["levelRadioButton"];
@@ -83,12 +115,12 @@ window.onload = function() {
 			gamePage.style.display = 'none';
 			currentPage = 'startPage';
 		}
+		startGame();
 	}
 
 	var drawBugs = function() {
 		setInterval(
 			function(){
-				viewPortContext.beginPath();
 				var bugX = 10 + 380 * Math.random();
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
@@ -104,21 +136,37 @@ window.onload = function() {
 				else{
 					drawBug3(viewPortContext, bugX, bugY);
 				}
-
-				// viewPortContext.arc(bugX, bugY, 20, 0, 2*Math.PI);
-				// viewPortContext.fillStyle = "green";
-				// viewPortContext.fill();
-				// viewPortContext.stroke();
-
-			}, Math.random() * 3000);
+			}, Math.random() * 3000
+		);
 	}
 
-	var drawFood = function() {
+	function drawFood(){
+		var i = 0;
+		while(i!=5){
+			
+				var foodX = 10 + 380 * Math.random();
+				var foodY = 550;
+				var food = makeFood(foodX, foodY);
+				foodList.push(food);
+
+				/* Should check bugType here and draw bug accordingly */
+				if(food.foodType=="apple"){
+					drawApple(viewPortContext, foodX, foodY);
+				}
+				else if(food.foodType=="orange"){
+					drawOrange(viewPortContext, foodX, foodY);
+				}
+				else{
+					drawBanana(viewPortContext, foodX, foodY);
+				}
+			i++;
+		}
 	}
 
 	function startGame() {
         /* make a sound to start the game and maybe some other things? */
         drawBugs();
+        drawFood();
 	}
 
 	function pauseUnpause(){
@@ -422,5 +470,4 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
-	startGame();
 }
