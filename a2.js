@@ -51,19 +51,8 @@ window.onload = function() {
 	}
 	
 	var makeFood = function(foodX, foodY) {
-		var foodType;
-		var foodProbability = Math.random();
-		if(foodProbability<0.333){
-			foodType = "apple";
-		}
-		else if(foodProbability<0.666){
-			foodType = "orange";
-		}
-		else{
-			foorType = "banana";
-		}
 		var food = {
-			foodType: foodType,
+			foodType: "apple",
 			foodX: foodX,
 			foodY: foodY
 		};
@@ -108,26 +97,51 @@ window.onload = function() {
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
-				drawBug(bug);
-			}, Math.random() * 3000
+				drawBug(bug);	
+			}, ((Math.random() * 1000)%3000)
+		);/*
+		setInterval(
+			function(){
+				viewPortCanvasClear();
+				for(i=0; i<bugList.length; i++){
+					moveBug(bugList[i]);
+					drawBug(bugList[i]);
+					drawFoods();
+				}
+			}, 1000
+		);*/
+	}
+	
+	function reDrawObjects(){
+		setInterval(
+			function(){
+				viewPortCanvasClear();
+				for(i=0; i<bugList.length; i++){
+					moveBug(bugList[i]);
+					drawBug(bugList[i]);
+				}
+				drawFoods();
+			}, 1000
 		);
 	}
 	
-	function drawFoods(){
+	var drawFoods = function(){
 		var food;
 		var i = 0;
 		var foodX;
-		var foodY = 550;
-		while(i!=5){
-				foodX = 40+i*80;
-				food = makeFood(foodX, foodY);
-				foodList.push(food);
-				drawFood(food);
-				i++;
+		var foodY;
+		while(i!=6){
+			foodX = 40+i*80;
+			foodY = 550;
+			food = makeFood(foodX, foodY);
+			foodList.push(food); 
+			drawFood(food);
+			i++;
 		}
+
 	}
 	
-	function moveBugs(){
+	function moveBug(bug){
 		var gradientDistance;
 		var deltaX;
 		var deltaY;
@@ -139,25 +153,26 @@ window.onload = function() {
 		var bugX;
 		var bugY;
 		var bug;
-		for(bug in bugList){
-			bugX = bug.bugX;
-			bugY = bug.bugY;
-			for(var food in foodList){
-				foodX = food.foodX;
-				foodY = food.foodY;
-				deltaX = bugX-foodX;
-				deltaY = bugY-foodY;
-				distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
-				/* below comparison from http://stackoverflow.com/questions/242813/when-to-use-double-or-single-quotes-in-javascript */
-				if((typeof minDistance === "undefined")||(minDistance > distance)){
-					minDistance = distance;
-					newBugX = (deltaX/distance)*bug.bugSpeed;
-					newBugY = (deltaY/distance)*bug.bugSpeed;
-				}
+		bugX = bug.bugX;
+		bugY = bug.bugY;
+		/*
+		for(i=0; i<foodList.length; i++){
+			
+			foodX = foodList[i].foodX;
+			foodY = foodList[i].foodY;
+			deltaX = bugX-foodX;
+			deltaY = bugY-foodY;
+			distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
+			// below comparison 'type of and undefined' from http://stackoverflow.com/questions/242813/when-to-use-double-or-single-quotes-in-javascript
+			if((typeof minDistance === "undefined")||(minDistance > distance)){
+				minDistance = distance;
+				newBugX = (deltaX/distance)*bug.bugSpeed;
+				newBugY = (deltaY/distance)*bug.bugSpeed;
 			}
-			bug.bugX = newBugX;
-			bug.bugY = newBugY;	
 		}
+		bug.bugX = newBugX;
+		bug.bugY = newBugY;*/
+		bug.bugY+=30;
 	}
 	
 	
@@ -198,8 +213,9 @@ window.onload = function() {
 
 	function startGame() {
         /* make a sound to start the game and maybe some other things? */
-        drawBugs();
         drawFoods();
+        drawBugs();
+        reDrawObjects();
 	}
 
 	function pauseUnpause(){
