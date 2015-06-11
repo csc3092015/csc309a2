@@ -51,8 +51,10 @@ window.onload = function() {
 	}
 	
 	var makeFood = function(foodX, foodY) {
+		var foodTypes = ["apple", "orange", "banana"];
+		var random = Math.floor(3*Math.random());
 		var food = {
-			foodType: "apple",
+			foodType: foodTypes[random],
 			foodX: foodX,
 			foodY: foodY
 		};
@@ -107,20 +109,19 @@ window.onload = function() {
 			function(){
 				viewPortCanvasClear();
 				for(i=0; i<bugList.length; i++){
-					moveBug(bugList[i]);
-					drawBug(bugList[i]);
+					moveAndDrawBug(bugList[i]);
 				}
 				drawFoods();
 			}, 1000/60
 		);
 	}
 	
-	var drawFoods = function(){
+	var createFoods = function(){
 		var food;
 		var i = 0;
 		var foodX;
 		var foodY;
-		while(i!=6){
+		while(i!=5){
 			foodX = 40+i*80;
 			foodY = 550;
 			food = makeFood(foodX, foodY);
@@ -131,7 +132,13 @@ window.onload = function() {
 
 	}
 	
-	function moveBug(bug){
+	function drawFoods(){
+		for(i=0; i<foodList.length; i++){
+			drawFood(foodList[i]);
+		}
+	}
+	
+	function moveAndDrawBug(bug){
 		var gradientDistance;
 		var deltaX;
 		var deltaY;
@@ -144,7 +151,11 @@ window.onload = function() {
 		var bugY;
 		var bug;
 		bugX = bug.bugX;
-		bugY = bug.bugY;
+		bugY = bug.bugY;/*
+		for(i=0;i<foodList.length;i++){
+			alert(foodList.length);
+		}
+		
 		/*
 		for(i=0; i<foodList.length; i++){
 			foodX = foodList[i].foodX;
@@ -162,11 +173,8 @@ window.onload = function() {
 		bug.bugX = newBugX;
 		bug.bugY = newBugY;*/
 		bug.bugY+=30/60;
+		drawBug(bug);
 	}
-	
-	
-	
-	
 	
 	
 	/* Helper Functions */
@@ -198,11 +206,15 @@ window.onload = function() {
 		}	
 	}
 	
+	function rotateBug(bug, deltaX, deltaY){
+			
+	}
+	
 	/* End of Helper Functions */
 
 	function startGame() {
         /* make a sound to start the game and maybe some other things? */
-        drawFoods();
+        createFoods();
         drawBugs();
         reDrawObjects();
 	}
@@ -219,32 +231,141 @@ window.onload = function() {
 	        /* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
 	}
 	
-	
-	/* More Helper Functions */
-	
 	/* Bug and Food Canvases */
 	
 	function drawApple(canvas, x, y){
-		canvas.beginPath();
-		canvas.arc(x,y,9,0,2*Math.PI);
-		canvas.fillStyle = "red";
-		canvas.fill();
-		canvas.strokeStyle = "red";
-		canvas.stroke();
+		drawCircle(canvas, x, y, "Red");	
 		drawLeaves(canvas, x, y);
 		drawSmiley(canvas, x, y, 4);
 	}
 	
 	function drawOrange(canvas, x, y){
-		canvas.beginPath();
-		canvas.arc(x,y,9,0,2*Math.PI);
-		canvas.fillStyle = "orange";
-		canvas.fill();
-		canvas.strokeStyle = "orange";
-		canvas.stroke();
+		drawCircle(canvas, x, y, "Orange");		
 		drawLeaves(canvas, x, y);
 		drawSmiley(canvas, x, y, 4);
 		
+	}
+	
+	function drawBanana(canvas, x, y){
+		drawBananaBody(canvas, x, y);
+		drawBananaLines(canvas, x, y);
+	}
+	
+	function drawBug1(canvas, x, y){
+		drawBugGeneral(canvas, x, y, "Green");
+	}
+	
+	function drawBug2(canvas, x, y){
+		drawBugGeneral(canvas, x, y, "Black");
+		drawBugWings(canvas, x, y);
+	}
+	
+	
+	function drawBug3(canvas, x, y){
+		drawBugGeneral(canvas, x, y, "Orange");
+	}
+	
+	/* More Helper Functions */
+	
+	function drawBugLegs(canvas, x, y){
+		canvas.beginPath();
+		canvas.moveTo(x+6,y);
+		canvas.lineTo(x-6,y);
+		canvas.moveTo(x+6,y+4);
+		canvas.lineTo(x-6,y+4);
+		canvas.moveTo(x+6,y-4);
+		canvas.lineTo(x-6,y-4);
+		canvas.moveTo(x+6,y-8);
+		canvas.lineTo(x-6,y-8);
+		canvas.moveTo(x+6,y-12);
+		canvas.lineTo(x-6,y-12);
+		canvas.moveTo(x+6,y-16);
+		canvas.lineTo(x-6,y-16);
+		canvas.moveTo(x+6,y-20);
+		canvas.lineTo(x-6,y-20);
+		canvas.strokeStyle = "Black";
+		canvas.stroke();
+	}
+	
+	function drawBugWings(canvas, x, y){
+		canvas.beginPath();
+		canvas.arc(x+4,y-3,4,0,2*Math.PI);
+		canvas.fillStyle = "White";
+		canvas.fill();
+		canvas.strokeStyle = "Black";
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x-4,y-3,4,0,2*Math.PI);
+		canvas.fillStyle = "White";
+		canvas.fill();
+		canvas.strokeStyle = "Black";
+		canvas.stroke();
+	}
+	
+	function drawBugGeneral(canvas, x, y, color){
+		drawBugLegs(canvas, x, y);
+		if(color=="Black"){
+			colorSecond = "Yellow";
+		}
+		else{
+			colorSecond = color;
+		}
+		
+		canvas.scale(0.5, 1);
+		canvas.beginPath();
+		canvas.arc(x*2,y,6,0,2*Math.PI);
+		canvas.fillStyle = color;
+		canvas.fill();
+		canvas.strokeStyle = color;
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.scale(2, 1);
+		canvas.arc(x,y+11,5,0,2*Math.PI)
+		canvas.fillStyle = colorSecond;
+		canvas.fill();
+		canvas.strokeStyle = colorSecond;
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x,y-9,3,0,2*Math.PI)
+		canvas.fillStyle = colorSecond;
+		canvas.fill();
+		canvas.strokeStyle = colorSecond;
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x,y-15,3,0,2*Math.PI)
+		canvas.fillStyle = color;
+		canvas.fill();
+		canvas.strokeStyle = color;
+		canvas.stroke();
+		
+		canvas.beginPath();
+		canvas.arc(x,y-21,3,0,2*Math.PI)
+		canvas.fillStyle = colorSecond;
+		canvas.fill();
+		canvas.strokeStyle = colorSecond;
+		canvas.stroke();
+		
+		drawSmiley(canvas, x, y+10, 2)
+	}
+	
+	function drawBananaLines(canvas, x, y){
+		canvas.beginPath();
+		canvas.arc(x+2,y-2,8,0.5,4);
+		canvas.strokeStyle = "black";
+		canvas.stroke();
+	}
+	
+	function drawCircle(canvas, x, y, color){
+		canvas.beginPath();
+		canvas.arc(x,y,9,0,2*Math.PI);
+		canvas.fillStyle = color;
+		canvas.fill();
+		canvas.strokeStyle = color;
+		canvas.stroke();
 	}
 	
 	function drawLeaves(canvas, x, y){
@@ -287,7 +408,7 @@ window.onload = function() {
 		canvas.stroke();
 	}
 	
-	function drawBanana(canvas, x, y){
+	function drawBananaBody(canvas, x, y){
 		canvas.beginPath();
 		canvas.arc(x,y,10,0,4.5);
 		canvas.lineTo(x-5, y-5);
@@ -301,213 +422,8 @@ window.onload = function() {
 		canvas.fill();
 		canvas.strokeStyle = "black";
 		canvas.stroke();
-		drawBananaLines(canvas, x, y);
 	}
 	
-	function drawBananaLines(canvas, x, y){
-		canvas.beginPath();
-		canvas.arc(x+2,y-2,8,0.5,4);
-		canvas.strokeStyle = "black";
-		canvas.stroke();
-	}
-	
-	function drawBug1(canvas, x, y){
-		canvas.beginPath();
-		canvas.moveTo(x+6,y);
-		canvas.lineTo(x-6,y);
-		canvas.moveTo(x+6,y+4);
-		canvas.lineTo(x-6,y+4);
-		canvas.moveTo(x+6,y-4);
-		canvas.lineTo(x-6,y-4);
-		canvas.moveTo(x+6,y-8);
-		canvas.lineTo(x-6,y-8);
-		canvas.moveTo(x+6,y-12);
-		canvas.lineTo(x-6,y-12);
-		canvas.moveTo(x+6,y-16);
-		canvas.lineTo(x-6,y-16);
-		canvas.moveTo(x+6,y-20);
-		canvas.lineTo(x-6,y-20);
-		canvas.strokeStyle = "Green ";
-		canvas.stroke();
-		
-		canvas.scale(0.5, 1);
-		canvas.beginPath();
-		canvas.arc(x*2,y,6,0,2*Math.PI);
-		canvas.fillStyle = "green";
-		canvas.fill();
-		canvas.strokeStyle = "green";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.scale(2, 1);
-		canvas.arc(x,y+11,5,0,2*Math.PI)
-		canvas.fillStyle = "Chartreuse";
-		canvas.fill();
-		canvas.strokeStyle = "Chartreuse";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-9,3,0,2*Math.PI)
-		canvas.fillStyle = "Green";
-		canvas.fill();
-		canvas.strokeStyle = "Green";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-15,3,0,2*Math.PI)
-		canvas.fillStyle = "Green";
-		canvas.fill();
-		canvas.strokeStyle = "Green";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-21,3,0,2*Math.PI)
-		canvas.fillStyle = "Green";
-		canvas.fill();
-		canvas.strokeStyle = "Green";
-		canvas.stroke();
-		
-		drawSmiley(canvas, x, y+10, 2)
-	}
-	
-	function drawBug2(canvas, x, y){
-		canvas.beginPath();
-		canvas.moveTo(x+6,y);
-		canvas.lineTo(x-6,y);
-		canvas.moveTo(x+6,y+4);
-		canvas.lineTo(x-6,y+4);
-		canvas.moveTo(x+6,y-4);
-		canvas.lineTo(x-6,y-4);
-		canvas.moveTo(x+6,y-8);
-		canvas.lineTo(x-6,y-8);
-		canvas.moveTo(x+6,y-12);
-		canvas.lineTo(x-6,y-12);
-		canvas.moveTo(x+6,y-16);
-		canvas.lineTo(x-6,y-16);
-		canvas.moveTo(x+6,y-20);
-		canvas.lineTo(x-6,y-20);
-		canvas.strokeStyle = "Black ";
-		canvas.stroke();
-		
-		canvas.scale(0.5, 1);
-		canvas.beginPath();
-		canvas.arc(x*2,y,6,0,2*Math.PI);
-		canvas.fillStyle = "Black";
-		canvas.fill();
-		canvas.strokeStyle = "Black";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x*2,y,6,0,2*Math.PI);
-		canvas.fillStyle = "Black";
-		canvas.fill();
-		canvas.strokeStyle = "Black";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.scale(2, 1);
-		canvas.arc(x,y+11,5,0,2*Math.PI)
-		canvas.fillStyle = "Yellow";
-		canvas.fill();
-		canvas.strokeStyle = "Yellow";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-9,3,0,2*Math.PI)
-		canvas.fillStyle = "Yellow";
-		canvas.fill();
-		canvas.strokeStyle = "Yellow";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-15,3,0,2*Math.PI)
-		canvas.fillStyle = "Black";
-		canvas.fill();
-		canvas.strokeStyle = "Black";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-21,3,0,2*Math.PI)
-		canvas.fillStyle = "Yellow";
-		canvas.fill();
-		canvas.strokeStyle = "Yellow";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x+4,y-3,4,0,2*Math.PI);
-		canvas.fillStyle = "White";
-		canvas.fill();
-		canvas.strokeStyle = "Black";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x-4,y-3,4,0,2*Math.PI);
-		canvas.fillStyle = "White";
-		canvas.fill();
-		canvas.strokeStyle = "Black";
-		canvas.stroke();
-		
-		drawSmiley(canvas, x, y+10, 2)
-	}
-	
-	function drawBug3(canvas, x, y){
-		canvas.beginPath();
-		canvas.moveTo(x+6,y);
-		canvas.lineTo(x-6,y);
-		canvas.moveTo(x+6,y+4);
-		canvas.lineTo(x-6,y+4);
-		canvas.moveTo(x+6,y-4);
-		canvas.lineTo(x-6,y-4);
-		canvas.moveTo(x+6,y-8);
-		canvas.lineTo(x-6,y-8);
-		canvas.moveTo(x+6,y-12);
-		canvas.lineTo(x-6,y-12);
-		canvas.moveTo(x+6,y-16);
-		canvas.lineTo(x-6,y-16);
-		canvas.moveTo(x+6,y-20);
-		canvas.lineTo(x-6,y-20);
-		canvas.strokeStyle = "Orange";
-		canvas.stroke();
-		
-		canvas.scale(0.5, 1);
-		canvas.beginPath();
-		canvas.arc(x*2,y,6,0,2*Math.PI);
-		canvas.fillStyle = "Orange";
-		canvas.fill();
-		canvas.strokeStyle = "Orange";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.scale(2, 1);
-		canvas.arc(x,y+11,5,0,2*Math.PI)
-		canvas.fillStyle = "Orange";
-		canvas.fill();
-		canvas.strokeStyle = "Orange";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-9,3,0,2*Math.PI)
-		canvas.fillStyle = "Orange";
-		canvas.fill();
-		canvas.strokeStyle = "Orange";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-15,3,0,2*Math.PI)
-		canvas.fillStyle = "Orange";
-		canvas.fill();
-		canvas.strokeStyle = "Orange";
-		canvas.stroke();
-		
-		canvas.beginPath();
-		canvas.arc(x,y-21,3,0,2*Math.PI)
-		canvas.fillStyle = "Orange";
-		canvas.fill();
-		canvas.strokeStyle = "Orange";
-		canvas.stroke();
-		
-		drawSmiley(canvas, x, y+10, 2)
-	}
 	
 	/* End of More Helper Functions */
 
