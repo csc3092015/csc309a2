@@ -98,18 +98,8 @@ window.onload = function() {
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
 				drawBug(bug);	
-			}, ((Math.random() * 1000)%3000)
-		);/*
-		setInterval(
-			function(){
-				viewPortCanvasClear();
-				for(i=0; i<bugList.length; i++){
-					moveBug(bugList[i]);
-					drawBug(bugList[i]);
-					drawFoods();
-				}
-			}, 1000
-		);*/
+			}, 1000+Math.random()*2000
+		);
 	}
 	
 	function reDrawObjects(){
@@ -121,7 +111,7 @@ window.onload = function() {
 					drawBug(bugList[i]);
 				}
 				drawFoods();
-			}, 1000
+			}, 1000/60
 		);
 	}
 	
@@ -157,7 +147,6 @@ window.onload = function() {
 		bugY = bug.bugY;
 		/*
 		for(i=0; i<foodList.length; i++){
-			
 			foodX = foodList[i].foodX;
 			foodY = foodList[i].foodY;
 			deltaX = bugX-foodX;
@@ -172,7 +161,7 @@ window.onload = function() {
 		}
 		bug.bugX = newBugX;
 		bug.bugY = newBugY;*/
-		bug.bugY+=30;
+		bug.bugY+=30/60;
 	}
 	
 	
