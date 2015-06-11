@@ -1,4 +1,5 @@
 window.onload = function() {
+	var frameRate = 10;
 	var level;
 	var levelForm = document.getElementById("levelForm");
 	var startPage = document.getElementById("startPage");
@@ -112,7 +113,7 @@ window.onload = function() {
 					moveAndDrawBug(bugList[i]);
 				}
 				drawFoods();
-			}, 1000/60
+			}, 1000/frameRate
 		);
 	}
 	
@@ -139,40 +140,37 @@ window.onload = function() {
 	}
 	
 	function moveAndDrawBug(bug){
-		var gradientDistance;
+		var a;
+		var b;
 		var deltaX;
 		var deltaY;
-		var newbugX;
-		var newbugY;
-		var minDistance;
-		var foodX;
-		var foodY;
-		var bugX;
-		var bugY;
-		var bug;
-		bugX = bug.bugX;
-		bugY = bug.bugY;/*
-		for(i=0;i<foodList.length;i++){
-			alert(foodList.length);
+		var distance;
+		
+		if(bug.bugX<80){
+			food = foodList[0];
+		}
+		else if(bug.bugX<160){
+			food = foodList[1];
+		}
+		else if(bug.bugX<240){
+			food = foodList[2];
+		}
+		else if(bug.bugX<320){
+			food = foodList[3];
+		}
+		else{
+			food = foodList[4];
 		}
 		
-		/*
-		for(i=0; i<foodList.length; i++){
-			foodX = foodList[i].foodX;
-			foodY = foodList[i].foodY;
-			deltaX = bugX-foodX;
-			deltaY = bugY-foodY;
-			distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
-			// below comparison 'type of and undefined' from http://stackoverflow.com/questions/242813/when-to-use-double-or-single-quotes-in-javascript
-			if((typeof minDistance === "undefined")||(minDistance > distance)){
-				minDistance = distance;
-				newBugX = (deltaX/distance)*bug.bugSpeed;
-				newBugY = (deltaY/distance)*bug.bugSpeed;
-			}
-		}
-		bug.bugX = newBugX;
-		bug.bugY = newBugY;*/
-		bug.bugY+=30/60;
+		deltaX = food.foodX-bug.bugX;
+		deltaY = food.foodY-bug.bugY;
+		
+		distance = Math.sqrt(Math.pow((deltaX),2) + Math.pow(deltaY,2));
+		bug.bugX += (((deltaX)/distance)*bug.bugSpeed)/frameRate;
+		bug.bugY += (((deltaY)/distance)*bug.bugSpeed)/frameRate;	
+		//bug.bugY += 3;
+		//bug.bugX += 3*(food.foodX-bug.bugX)/(food.foodY-bug.bugY);
+
 		drawBug(bug);
 	}
 	
@@ -223,8 +221,10 @@ window.onload = function() {
 	        /* If game is paused, resume. Otherwise pause. */
 	}
 
-	function endGame(){
+	function endGame(score){
 	        /* When the timer hits 0, this should be called to end the game */
+	        alert("Your score is: "+score+"!");
+	        startBackButtonOnclick();
 	}
 
 	function animate(){
