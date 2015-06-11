@@ -21,7 +21,7 @@ window.onload = function() {
 		var bugScore;
 		var bugProbability = Math.random();
 		if (bugProbability < 0.3){
-			bugType = "black";
+			bugType = "green";
 			bugScore = 5;
 			if (level === 1) {
 				bugSpeed = 150;
@@ -29,7 +29,7 @@ window.onload = function() {
 				bugSpeed = 200;
 			}
 		} else if (bugProbability < 0.6) {
-			bugType = "red";
+			bugType = "yellow";
 			bugScore = 3;
 			if (level === 1) {
 				bugSpeed = 75;
@@ -95,7 +95,15 @@ window.onload = function() {
 				bugList.push(bug);
 
 				/* Should check bugType here and draw bug accordingly */
-				drawBug3(viewPortContext, bugX, bugY);
+				if(bug.bugType=="green"){
+					drawBug1(viewPortContext, bugX, bugY);
+				}
+				else if(bug.bugType=="yellow"){
+					drawBug2(viewPortContext, bugX, bugY);
+				}
+				else{
+					drawBug3(viewPortContext, bugX, bugY);
+				}
 
 				// viewPortContext.arc(bugX, bugY, 20, 0, 2*Math.PI);
 				// viewPortContext.fillStyle = "green";
