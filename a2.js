@@ -18,11 +18,9 @@ window.onload = function() {
 	var makeBug = function(bugX, bugY) {
 		var bugType;
 		var bugSpeed;
-		var bugScore;
 		var bugProbability = Math.random();
 		if (bugProbability < 0.3){
 			bugType = "green";
-			bugScore = 5;
 			if (level === 1) {
 				bugSpeed = 150;
 			} else {
@@ -30,7 +28,6 @@ window.onload = function() {
 			}
 		} else if (bugProbability < 0.6) {
 			bugType = "yellow";
-			bugScore = 3;
 			if (level === 1) {
 				bugSpeed = 75;
 			} else {
@@ -38,7 +35,6 @@ window.onload = function() {
 			}
 		} else {
 			bugType = "orange";
-			bugScore = 1;
 			if (level === 1) {
 				bugSpeed = 60;
 			} else {
@@ -48,7 +44,6 @@ window.onload = function() {
 		var bug = {
 			bugType: bugType,
 			bugSpeed: bugSpeed,
-			bugScore: bugScore,
 			bugX: bugX,
 			bugY: bugY
 		};
@@ -57,30 +52,18 @@ window.onload = function() {
 	
 	var makeFood = function(foodX, foodY) {
 		var foodType;
-		/* Some food can last longer than others */
-		var foodLife;
-		/* subtract some score when food is eaten */
-		var foodScore;
 		var foodProbability = Math.random();
-		if (foodProbability < 0.33){
+		if(foodProbability<0.333){
 			foodType = "apple";
-			foodLife = 1;
-			foodScore = 1;
 		}
-		else if(foodProbability < 0.66){
+		else if(foodProbability<0.666){
 			foodType = "orange";
-			foodLife = 2;
-			foodScore = 2;
 		}
 		else{
-			foodType = "banana";
-			foodLife = 3;
-			foodScore = 3;
+			foorType = "banana";
 		}
 		var food = {
 			foodType: foodType,
-			foodLife: foodLife,
-			foodScore: foodScore,
 			foodX: foodX,
 			foodY: foodY
 		};
@@ -125,48 +108,98 @@ window.onload = function() {
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
-
-				/* Should check bugType here and draw bug accordingly */
-				if(bug.bugType=="green"){
-					drawBug1(viewPortContext, bugX, bugY);
-				}
-				else if(bug.bugType=="yellow"){
-					drawBug2(viewPortContext, bugX, bugY);
-				}
-				else{
-					drawBug3(viewPortContext, bugX, bugY);
-				}
+				drawBug(bug);
 			}, Math.random() * 3000
 		);
 	}
-
-	function drawFood(){
+	
+	function drawFoods(){
+		var food;
 		var i = 0;
+		var foodX;
+		var foodY = 550;
 		while(i!=5){
-			
-				var foodX = 10 + 380 * Math.random();
-				var foodY = 550;
-				var food = makeFood(foodX, foodY);
+				foodX = 40+i*80;
+				food = makeFood(foodX, foodY);
 				foodList.push(food);
-
-				/* Should check bugType here and draw bug accordingly */
-				if(food.foodType=="apple"){
-					drawApple(viewPortContext, foodX, foodY);
-				}
-				else if(food.foodType=="orange"){
-					drawOrange(viewPortContext, foodX, foodY);
-				}
-				else{
-					drawBanana(viewPortContext, foodX, foodY);
-				}
-			i++;
+				drawFood(food);
+				i++;
 		}
 	}
+	
+	function moveBugs(){
+		var gradientDistance;
+		var deltaX;
+		var deltaY;
+		var newbugX;
+		var newbugY;
+		var minDistance;
+		var foodX;
+		var foodY;
+		var bugX;
+		var bugY;
+		var bug;
+		for(bug in bugList){
+			bugX = bug.bugX;
+			bugY = bug.bugY;
+			for(var food in foodList){
+				foodX = food.foodX;
+				foodY = food.foodY;
+				deltaX = bugX-foodX;
+				deltaY = bugY-foodY;
+				distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
+				/* below comparison from http://stackoverflow.com/questions/242813/when-to-use-double-or-single-quotes-in-javascript */
+				if((typeof minDistance === "undefined")||(minDistance > distance)){
+					minDistance = distance;
+					newBugX = (deltaX/distance)*bug.bugSpeed;
+					newBugY = (deltaY/distance)*bug.bugSpeed;
+				}
+			}
+			bug.bugX = newBugX;
+			bug.bugY = newBugY;	
+		}
+	}
+	
+	
+	
+	
+	
+	
+	/* Helper Functions */
+	
+	function drawBug(bugObject){
+		bugX = bugObject.bugX;
+		bugY = bugObject.bugY;
+		/* Should check bugType here and draw bug accordingly */
+		if(bugObject.bugType=="green"){
+			drawBug1(viewPortContext, bugX, bugY);
+		}
+		else if(bugObject.bugType=="yellow"){
+			drawBug2(viewPortContext, bugX, bugY);
+		}
+		else{
+			drawBug3(viewPortContext, bugX, bugY);
+		}
+	}
+	
+	function drawFood(food){
+		if(food.foodType=="apple"){
+			drawApple(viewPortContext, food.foodX, food.foodY);
+		}
+		else if(food.foodType=="orange"){
+			drawOrange(viewPortContext, food.foodX, food.foodY);
+		}
+		else{
+			drawBanana(viewPortContext, food.foodX, food.foodY);
+		}	
+	}
+	
+	/* End of Helper Functions */
 
 	function startGame() {
         /* make a sound to start the game and maybe some other things? */
         drawBugs();
-        drawFood();
+        drawFoods();
 	}
 
 	function pauseUnpause(){
@@ -180,6 +213,9 @@ window.onload = function() {
 	function animate(){
 	        /* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
 	}
+	
+	
+	/* More Helper Functions */
 	
 	/* Bug and Food Canvases */
 	
@@ -468,38 +504,7 @@ window.onload = function() {
 		drawSmiley(canvas, x, y+10, 2)
 	}
 	
-	function moveBugs(){
-		var gradientDistance;
-		var deltaX;
-		var deltaY;
-		var newbugX;
-		var newbugY;
-		var minDistance;
-		var foodX;
-		var foodY;
-		var bugX;
-		var bugY;
-		var bug;
-		for(bug in bugList){
-			bugX = bug.bugX;
-			bugY = bug.bugY;
-			for(var food in foodList){
-				foodX = food.foodX;
-				foodY = food.foodY;
-				deltaX = bugX-foodX;
-				deltaY = bugY-foodY;
-				distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
-				/* below comparison from http://stackoverflow.com/questions/242813/when-to-use-double-or-single-quotes-in-javascript */
-				if((typeof minDistance === "undefined")||(minDistance > distance)){
-					minDistance = distance;
-					newBugX = (deltaX/distance)*bug.bugSpeed;
-					newBugY = (deltaY/distance)*bug.bugSpeed;
-				}
-			}
-			bug.bugX = newBugX;
-			bug.bugY = newBugY;	
-		}
-	}
+	/* End of More Helper Functions */
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
