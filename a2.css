@@ -22,22 +22,24 @@ body {
  #gamePage{
  	width: 400px;
  	height: 700px;
- 	border: 1px solid black;
+ 	border: 2px solid black;
  	margin: 0 auto;
  	padding: 0;
  	display: none;
+ 	background-color: #ecd968;
  }
 
 	 /******************************************************
 	 INFO BAR
 	 ******************************************************/
- #infoBar {
- 	border: 1px solid black;
+ #infoBar{
+ 	border-bottom: 1px solid black;
  	margin: 0;
  	padding: 0;
  	width: 400px;
  	height: 100px;
  	text-align: center;
+ 	background-color: white;
  }
 
 

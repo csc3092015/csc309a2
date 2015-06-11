@@ -467,6 +467,39 @@ window.onload = function() {
 		
 		drawSmiley(canvas, x, y+10, 2)
 	}
+	
+	function moveBugs(){
+		var gradientDistance;
+		var deltaX;
+		var deltaY;
+		var newbugX;
+		var newbugY;
+		var minDistance;
+		var foodX;
+		var foodY;
+		var bugX;
+		var bugY;
+		var bug;
+		for(bug in bugList){
+			bugX = bug.bugX;
+			bugY = bug.bugY;
+			for(var food in foodList){
+				foodX = food.foodX;
+				foodY = food.foodY;
+				deltaX = bugX-foodX;
+				deltaY = bugY-foodY;
+				distance = Math.sqrt(Math.pow(deltaX,2) + Math.pow(deltaY,2));
+				/* below comparison from http://stackoverflow.com/questions/242813/when-to-use-double-or-single-quotes-in-javascript */
+				if((typeof minDistance === "undefined")||(minDistance > distance)){
+					minDistance = distance;
+					newBugX = (deltaX/distance)*bug.bugSpeed;
+					newBugY = (deltaY/distance)*bug.bugSpeed;
+				}
+			}
+			bug.bugX = newBugX;
+			bug.bugY = newBugY;	
+		}
+	}
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
