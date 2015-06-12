@@ -1,7 +1,7 @@
 window.onload = function() {
 	// GLOBAL VARIABLE
 	var level;
-	var score;
+	var score = 0;
 	var levelForm = document.getElementById("levelForm");
 	var startPage = document.getElementById("startPage");
 	var currentPage = 'startPage';
@@ -13,9 +13,11 @@ window.onload = function() {
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
+	var createBugsIntervalId;
+	var reDrawObjectsIntervalId;
 
 	// CONSTANT
-	var FRAME_RATE = 10;
+	var FRAME_RATE = 60;
 	var TOTAL_FOOD_NUMBER = 5;
 	var OVERLAP_DISTANCE = 20;
 	var DEFAULT_BUG_WIDTH = 10;
@@ -23,7 +25,6 @@ window.onload = function() {
 	var DEFAULT_FOOD_WIDTH = 10;
 	var DEFAULT_FOOD_HEIGHT = 10;
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
-	var FOOD_TYPE_EATEN = "noType";
 	var FOOD_TYPES = ["apple", "orange", "banana"];
 
 
@@ -45,6 +46,8 @@ window.onload = function() {
 
 	function endGame(){
 	        /* When the timer hits 0, this should be called to end the game */
+	        window.clearInterval(createBugsIntervalId);
+	        window.clearInterval(reDrawObjectsIntervalId);
 	        alert("Your score is: " + score + "!");
 	}
 
@@ -86,74 +89,41 @@ window.onload = function() {
 
 	
 	function reDrawObjects(){
+		reDrawObjectsIntervalId = 
 		setInterval(
 			function(){
 				viewPortCanvasClear();
-				for(i = 0; i < bugList.length; i++){
-					moveAndDrawBug(bugList[i]);
-				}
+				drawBugs();
 				drawFoods();
 			}, 1000/FRAME_RATE
 		);
 	}
 
-
 	function isGameOver() {
 		if (foodList.length === 0) {
+			endGame();
 			return true;
 		}
 		return false;
 	}
-	
 
-	
-	function moveAndDrawBug(bug){
-		var deltaX;
-		var deltaY;
-		var distance;
-		var minDistance=10000;
-		var minIndex;
-		var food;
-		var foodX;
-		var foodY;
+	function deleteObj(objToDelete, objList) {
+		var objIndex = objList.indexOf(objToDelete);
+		if (objIndex > -1) {
+			objList.splice(objIndex, 1);
+		}
+	}
 
-		for (var i = 0; i < foodList.length; i++) {
-			if(foodList[i].foodType != FOOD_TYPE_EATEN){
-				deltaX = Math.abs(foodList[i].foodX-bug.bugX);
-				if(minDistance==10000||deltaX<minDistance){
-					minDistance = Math.abs(foodList[i].foodX-bug.bugX);
-					minIndex = i;
-				}	
-			}
 
-		}
-		
-		if(minDistance==10000){
-			endGame();
-		}
-		
-		food = foodList[minIndex];
-		
-		// We do this so that foodX/foodY doesn't suddenly change in between calculations
-		foodX = food.foodX;
-		foodY = food.foodY;
-		
-		deltaX = foodX - bug.bugX;
-		deltaY = foodY - bug.bugY;
-		distance = Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
-		
-		if(distance < OVERLAP_DISTANCE){
-			var foodIndex = foodList.indexOf(food);
-			var bugIndex = bugList.indexOf(bug);
-			food.foodType = FOOD_TYPE_EATEN;
-			if (bugIndex > -1) {
-				bugList.splice(bugIndex, 1);	
-			}
-		}
-		else{
-			bug.bugX += (((deltaX)/distance)*bug.bugSpeed)/FRAME_RATE;
-			bug.bugY += (((deltaY)/distance)*bug.bugSpeed)/FRAME_RATE;	
-			drawBug(bug);	
+
+	/**************************************************************
+	****        DRAW BUGS and FOODS 						*******
+	***************************************************************/
+
+	function drawBugs() {
+		for(i = 0; i < bugList.length; i++){
+			moveBug(bugList[i]);
+			drawBug(bugList[i]);
 		}
 	}
 	
@@ -163,10 +133,11 @@ window.onload = function() {
 		}
 	}
 	/**************************************************************
-	****        CREATE BUGS and FOOD 						*******
+	****        CREATE BUGS and FOODS 						*******
 	***************************************************************/
 
 	var createBugs = function() {
+		createBugsIntervalId =
 		setInterval(
 			function(){
 				var bugX = 10 + 380 * Math.random();
@@ -180,7 +151,6 @@ window.onload = function() {
 	
 	var createFoods = function(){
 		var food;
-		var i = 0;
 		var foodX;
 		var foodY;
 		// calculating spacing between food
@@ -191,19 +161,20 @@ window.onload = function() {
 		var spacing = 
 			(viewPortCanvas.width - DEFAULT_FOOD_WIDTH * TOTAL_FOOD_NUMBER) /
 				(TOTAL_FOOD_NUMBER + 1);
-		while(i != TOTAL_FOOD_NUMBER){
+		for (var i = 0; i < TOTAL_FOOD_NUMBER; i++) {
 			foodX = (i + 1) * spacing + i * 20;
 			foodY = FOOD_SPAWN_HEIGHT;
 			food = makeFood(foodX, foodY);
 			foodList.push(food); 
 			drawFood(food);
-			i++;
-		}
-
+		};
 	}
 
+	/*********EVERY THING BELOW IS FOR INDIVIDUAL BUG OR FOOD*****************/
+	/*********EVERY THING BELOW IS FOR INDIVIDUAL BUG OR FOOD*****************/
+
 	/**************************************************************
-	****         MAKE BUGS and FOOD 						*******
+	****         MAKE BUG and FOOD 					 		*******
 	***************************************************************/
 	var bugObject = function(bugX, bugY, bugType, bugSpeed, bugScore) {
 		this.bugX = bugX;
@@ -213,6 +184,8 @@ window.onload = function() {
 		this.bugScore = bugScore;
 		this.bugClosestFood;
 		this.bugClosestFoodDistance;
+		this.bugIncrementX;
+		this.bugIncrementY;
 		this.setClosestFood = function(){
 			var deltaX;
 			var deltaY;
@@ -223,13 +196,12 @@ window.onload = function() {
 				deltaX = food.foodX - this.bugX;
 				deltaY = food.foodY - this.bugY;
 				distance = Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
-				if (typeof minDistance === "undefined") {
+				if (typeof minDistance === "undefined" || minDistance > distance) {
 					this.bugClosestFoodDistance = distance;
 					this.bugClosestFood = food;
-				} else if (minDistance > distance) {
-					this.bugClosestFoodDistance = distance;
-					this.bugClosestFood = food;
-				}
+					this.bugIncrementX = (((deltaX)/distance)*this.bugSpeed)/FRAME_RATE;
+					this.bugIncrementY = (((deltaY)/distance)*this.bugSpeed)/FRAME_RATE;
+				} 
 			}
 		}
 	}
@@ -283,7 +255,26 @@ window.onload = function() {
 	}
 
 	/**************************************************************
-	****         DRAW BUG and FOOD 						*******
+	****        BUG OPERATION	 							*******
+	***************************************************************/
+	
+	function moveBug(bug){
+		if(isGameOver()) {
+			return;
+		}
+		bug.setClosestFood();
+		if(bug.bugClosestFoodDistance < OVERLAP_DISTANCE){
+			deleteObj(bug.bugClosestFood, foodList);
+			deleteObj(bug, bugList);
+		}
+		else{
+			bug.bugX += bug.bugIncrementX;
+			bug.bugY += bug.bugIncrementY;
+		}
+	}
+
+	/**************************************************************
+	****         DRAW BUG and FOOD 							*******
 	***************************************************************/
 
 	function drawBug(bugObject){
@@ -333,7 +324,7 @@ window.onload = function() {
 	}
 	
 	/**************************************************************
-	****         DRAW HELPER with Object					*******
+	****         DRAW HELPER for Object						*******
 	***************************************************************/
 
 	// function name specify which object it is drawing so the argument should be the object itself
