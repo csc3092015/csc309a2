@@ -28,13 +28,10 @@ window.onload = function() {
 	var FOOD_TYPES = ["apple", "orange", "banana"];
 
 
-	var viewPortCanvasClear = function() {
-		viewPortContext.clearRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
-	}
-
-
+	/**************************************************************
+	****        MAIN				 						*******
+	***************************************************************/
 	function startGame() {
-        /* make a sound to start the game and maybe some other things? */
         createFoods();
         createBugs();
         reDrawObjects();
@@ -44,17 +41,33 @@ window.onload = function() {
 	        /* If game is paused, resume. Otherwise pause. */
 	}
 
+	function reDrawObjects(){
+		reDrawObjectsIntervalId = setInterval(animate, 1000/FRAME_RATE);
+	}
+
+	function animate() {
+		/* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
+		if(isGameOver()) {
+			return;
+		}
+		viewPortCanvasClear();
+		drawBugs();
+		drawFoods();
+	}
+
 	function endGame(){
-	        /* When the timer hits 0, this should be called to end the game */
 	        window.clearInterval(createBugsIntervalId);
 	        window.clearInterval(reDrawObjectsIntervalId);
 	        alert("Your score is: " + score + "!");
 	}
 
-	function animate(){
-	        /* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
-	}
 
+	/**************************************************************
+	****        GENERAL HELPER		 						*******
+	***************************************************************/
+	var viewPortCanvasClear = function() {
+		viewPortContext.clearRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
+	}
 
 	var getLevel = function() {
 		var levelRadioButtons = levelForm.elements["levelRadioButton"];
@@ -65,7 +78,6 @@ window.onload = function() {
 			}
 		}
 	}
-
 
 	var startBackButtonOnclick = function() {
 		if (currentPage === 'startPage') {
@@ -86,19 +98,6 @@ window.onload = function() {
 		startGame();
 	}
 
-
-	
-	function reDrawObjects(){
-		reDrawObjectsIntervalId = 
-		setInterval(
-			function(){
-				viewPortCanvasClear();
-				drawBugs();
-				drawFoods();
-			}, 1000/FRAME_RATE
-		);
-	}
-
 	function isGameOver() {
 		if (foodList.length === 0) {
 			endGame();
@@ -114,16 +113,13 @@ window.onload = function() {
 		}
 	}
 
-
-
 	/**************************************************************
 	****        DRAW BUGS and FOODS 						*******
 	***************************************************************/
 
 	function drawBugs() {
 		for(i = 0; i < bugList.length; i++){
-			moveBug(bugList[i]);
-			drawBug(bugList[i]);
+			drawBug(moveBug(bugList[i]));
 		}
 	}
 	
@@ -162,7 +158,7 @@ window.onload = function() {
 			(viewPortCanvas.width - DEFAULT_FOOD_WIDTH * TOTAL_FOOD_NUMBER) /
 				(TOTAL_FOOD_NUMBER + 1);
 		for (var i = 0; i < TOTAL_FOOD_NUMBER; i++) {
-			foodX = (i + 1) * spacing + i * 20;
+			foodX = (i + 1) * spacing + i * DEFAULT_FOOD_WIDTH;
 			foodY = FOOD_SPAWN_HEIGHT;
 			food = makeFood(foodX, foodY);
 			foodList.push(food); 
@@ -172,6 +168,8 @@ window.onload = function() {
 
 	/*********EVERY THING BELOW IS FOR INDIVIDUAL BUG OR FOOD*****************/
 	/*********EVERY THING BELOW IS FOR INDIVIDUAL BUG OR FOOD*****************/
+	/*********EVERY THING BELOW IS FOR INDIVIDUAL BUG OR FOOD*****************/
+
 
 	/**************************************************************
 	****         MAKE BUG and FOOD 					 		*******
@@ -203,7 +201,19 @@ window.onload = function() {
 					this.bugIncrementY = (((deltaY)/distance)*this.bugSpeed)/FRAME_RATE;
 				} 
 			}
-		}
+		};
+
+		// this.bugMove = function(){
+		// 	this.setClosestFood();
+		// 	if(this.bugClosestFoodDistance < OVERLAP_DISTANCE){
+		// 		deleteObj(this.bugClosestFood, foodList);
+		// 		deleteObj(this, bugList);
+		// 	}
+		// 	else{
+		// 		this.bugX += this.bugIncrementX;
+		// 		this.bugY += this.bugIncrementY;
+		// 	}
+		// };
 	}
 
 
@@ -259,9 +269,6 @@ window.onload = function() {
 	***************************************************************/
 	
 	function moveBug(bug){
-		if(isGameOver()) {
-			return;
-		}
 		bug.setClosestFood();
 		if(bug.bugClosestFoodDistance < OVERLAP_DISTANCE){
 			deleteObj(bug.bugClosestFood, foodList);
@@ -271,6 +278,7 @@ window.onload = function() {
 			bug.bugX += bug.bugIncrementX;
 			bug.bugY += bug.bugIncrementY;
 		}
+		return bug;
 	}
 
 	/**************************************************************
