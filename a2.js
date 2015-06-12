@@ -145,33 +145,49 @@ window.onload = function() {
 		var deltaX;
 		var deltaY;
 		var distance;
+		var minDistance;
+		var food;
+		var foodX;
+		var foodY;
 		
-		if(bug.bugX<80){
+		if(bug.bugX<80&&foodList[0]!==NaN){
 			food = foodList[0];
 		}
-		else if(bug.bugX<160){
+		else if(bug.bugX<160&&foodList[1].foodType!="noType"){
 			food = foodList[1];
 		}
-		else if(bug.bugX<240){
+		else if(bug.bugX<240&&foodList[2].foodType!="noType"){
 			food = foodList[2];
 		}
-		else if(bug.bugX<320){
+		else if(bug.bugX<320&&foodList[3].foodType!="noType"){
 			food = foodList[3];
 		}
-		else{
+		else if(foodList[4].foodType!="noType"){
 			food = foodList[4];
 		}
+		else{
+			endGame(0);
+		}
 		
-		deltaX = food.foodX-bug.bugX;
-		deltaY = food.foodY-bug.bugY;
+		// We do this so that foodX/foodY doesn't suddenly change in between calculations
+		foodX = food.foodX;
+		foodY = food.foodY;
 		
+		deltaX = foodX-bug.bugX;
+		deltaY = foodY-bug.bugY;
 		distance = Math.sqrt(Math.pow((deltaX),2) + Math.pow(deltaY,2));
-		bug.bugX += (((deltaX)/distance)*bug.bugSpeed)/frameRate;
-		bug.bugY += (((deltaY)/distance)*bug.bugSpeed)/frameRate;	
-		//bug.bugY += 3;
-		//bug.bugX += 3*(food.foodX-bug.bugX)/(food.foodY-bug.bugY);
-
-		drawBug(bug);
+		
+		if(distance<20){
+			var indexFood = foodList.indexOf(food);
+			var indexBug = bugList.indexOf(bug);
+			food.foodType = "noType";
+			bugList.splice(indexBug,1,NaN);
+		}
+		else{
+			bug.bugX += (((deltaX)/distance)*bug.bugSpeed)/frameRate;
+			bug.bugY += (((deltaY)/distance)*bug.bugSpeed)/frameRate;	
+			drawBug(bug);	
+		}
 	}
 	
 	
@@ -199,7 +215,7 @@ window.onload = function() {
 		else if(food.foodType=="orange"){
 			drawOrange(viewPortContext, food.foodX, food.foodY);
 		}
-		else{
+		else if(food.foodType=="banana"){
 			drawBanana(viewPortContext, food.foodX, food.foodY);
 		}	
 	}
