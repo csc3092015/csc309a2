@@ -212,18 +212,6 @@ window.onload = function() {
 				} 
 			}
 		};
-
-		// this.bugMove = function(){
-		// 	this.setClosestFood();
-		// 	if(this.bugClosestFoodDistance < OVERLAP_DISTANCE){
-		// 		deleteObj(this.bugClosestFood, foodList);
-		// 		deleteObj(this, bugList);
-		// 	}
-		// 	else{
-		// 		this.bugX += this.bugIncrementX;
-		// 		this.bugY += this.bugIncrementY;
-		// 	}
-		// };
 	}
 
 
@@ -289,6 +277,30 @@ window.onload = function() {
 			bug.bugY += bug.bugIncrementY;
 		}
 		return bug;
+	}
+	
+	function killBugs(event){
+		/* Two websites used to come up with this:
+			1. http://stackoverflow.com/questions/442404/retrieve-the-position-x-y-of-an-html-element
+			2. http://www.kirupa.com/html5/getting_mouse_click_position.htm
+		*/
+		var bug;
+		var rectangle = viewPortCanvas.getBoundingClientRect();
+		var x_skew = rectangle.left;
+		var y_skew = rectangle.top;
+		var x = event.clientX - x_skew;
+		var y = event.clientY - y_skew;
+		var interval_x = 16;
+		var interval_y = 50;
+		for(i=0; i<bugList.length; i++){
+			bug = bugList[i];
+			if((x-interval_x/2)<bug.bugX&&bug.bugX<(x+interval_x/2)){
+				if((y-interval_y/2)<bug.bugY&&bug.bugY<(y+interval_y/2)){
+					score+=bug.bugScore; 
+					deleteObj(bug, bugList);
+				}
+			}
+		}
 	}
 
 	/**************************************************************
@@ -526,4 +538,5 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
+	viewPortCanvas.addEventListener("click", killBugs, false);
 }
