@@ -61,9 +61,9 @@ window.onload = function() {
 	        window.clearInterval(createBugsIntervalId);
 	        window.clearInterval(reDrawObjectsIntervalId);
 	        dropAll();
-	        //calculateAndSetHighScore();
 	        alert("Your score is: " + score + "!");
 	        calculateAndSetHighScore();
+	        resetScore();
 	        startBackButtonOnclick();
 	}
 
@@ -130,6 +130,10 @@ window.onload = function() {
 			highScore = score;
 		}
 		document.getElementById("highScoreValue").innerHTML = highScore;
+	}
+	
+	function resetScore(){
+		score = 0;
 	}
 
 	/**************************************************************
