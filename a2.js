@@ -306,7 +306,7 @@ window.onload = function() {
 		for(i=0; i<bugList.length; i++){
 			bug = bugList[i];
 			if((x-interval_x/2)<bug.bugX&&bug.bugX<(x+interval_x/2)){
-				if((y-interval_y/2)<bug.bugY&&bug.bugY<(y+interval_y/2)){
+				if((y-(interval_y/2)*0.5)<bug.bugY&&bug.bugY<(y+(interval_y/2))*1.5){
 					score+=bug.bugScore; 
 					deleteObj(bug, bugList);
 				}
