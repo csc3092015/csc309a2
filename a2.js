@@ -15,6 +15,7 @@ window.onload = function() {
 	var foodList = [];
 	var createBugsIntervalId;
 	var reDrawObjectsIntervalId;
+	var highScore = 0;
 
 	// CONSTANT
 	var FRAME_RATE = 60;
@@ -60,7 +61,10 @@ window.onload = function() {
 	        window.clearInterval(createBugsIntervalId);
 	        window.clearInterval(reDrawObjectsIntervalId);
 	        dropAll();
+	        //calculateAndSetHighScore();
 	        alert("Your score is: " + score + "!");
+	        calculateAndSetHighScore();
+	        startBackButtonOnclick();
 	}
 
 
@@ -119,6 +123,13 @@ window.onload = function() {
 		if (objIndex > -1) {
 			objList.splice(objIndex, 1);
 		}
+	}
+	
+	function calculateAndSetHighScore(){
+		if(score>highScore){
+			highScore = score;
+		}
+		document.getElementById("highScoreValue").innerHTML = highScore;
 	}
 
 	/**************************************************************
@@ -539,4 +550,5 @@ window.onload = function() {
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
 	viewPortCanvas.addEventListener("click", killBugs, false);
+	calculateAndSetHighScore();
 }
