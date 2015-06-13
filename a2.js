@@ -196,13 +196,15 @@ window.onload = function() {
 			var deltaX;
 			var deltaY;
 			var distance;
-			var food;;
+			var food;
+			var minDistance;
 			for (var i = 0; i < foodList.length; i++) {
 				food = foodList[i];
 				deltaX = food.foodX - this.bugX;
 				deltaY = food.foodY - this.bugY;
 				distance = Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
 				if (typeof minDistance === "undefined" || minDistance > distance) {
+					minDistance = distance;
 					this.bugClosestFoodDistance = distance;
 					this.bugClosestFood = food;
 					this.bugIncrementX = (((deltaX)/distance)*this.bugSpeed)/FRAME_RATE;
