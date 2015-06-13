@@ -10,13 +10,17 @@ window.onload = function() {
 	var pauseButton = document.getElementById("pauseButton");
 	var backButton = document.getElementById("backButton");
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
+	var currentScorePara = document.getElementById("currentScore");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
+	var bugToFadeList = [];
 	var createBugsIntervalId;
 	var reDrawObjectsIntervalId;
+	var highScore = 0;
 
 	// CONSTANT
+	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
 	var FRAME_RATE = 60;
 	var TOTAL_FOOD_NUMBER = 5;
 	var OVERLAP_DISTANCE = 20;
@@ -26,6 +30,7 @@ window.onload = function() {
 	var DEFAULT_FOOD_HEIGHT = 10;
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
 	var FOOD_TYPES = ["apple", "orange", "banana"];
+	var BUG_KILL_RADIUS = 30;
 
 
 	/**************************************************************
@@ -33,6 +38,7 @@ window.onload = function() {
 	***************************************************************/
 	function startGame() {
 		dropAll();
+		upDateVisualScore();
         createFoods();
         createBugs();
         reDrawObjects();
@@ -57,10 +63,13 @@ window.onload = function() {
 	}
 
 	function endGame(){
-	        window.clearInterval(createBugsIntervalId);
-	        window.clearInterval(reDrawObjectsIntervalId);
-	        dropAll();
-	        alert("Your score is: " + score + "!");
+		window.clearInterval(createBugsIntervalId);
+		window.clearInterval(reDrawObjectsIntervalId);
+		dropAll();
+		alert("Your score is: " + score + "!");
+		calculateAndSetHighScore();
+		resetScore();
+		startBackButtonOnclick();
 	}
 
 
@@ -120,6 +129,21 @@ window.onload = function() {
 			objList.splice(objIndex, 1);
 		}
 	}
+	
+	function calculateAndSetHighScore(){
+		if(score>highScore){
+			highScore = score;
+		}
+		document.getElementById("highScoreValue").innerHTML = highScore;
+	}
+	
+	function resetScore(){
+		score = 0;
+	}
+
+	function upDateVisualScore() {
+		currentScorePara.innerHTML = "Score: " + score.toString();
+	}
 
 	/**************************************************************
 	****        DRAW BUGS and FOODS 						*******
@@ -128,6 +152,13 @@ window.onload = function() {
 	function drawBugs() {
 		for(i = 0; i < bugList.length; i++){
 			drawBug(moveBug(bugList[i]));
+		}
+		for(i = 0; i < bugToFadeList.length; i++) {
+			if (bugToFadeList[i].bugAlpha > 0){
+				drawBug(bugToFadeList[i], DEFAULT_BUG_ALPHA/(2000/FRAME_RATE));		
+			} else {
+				deleteObj(bugToFadeList[i], bugToFadeList);
+			}
 		}
 	}
 	
@@ -183,6 +214,7 @@ window.onload = function() {
 	****         MAKE BUG and FOOD 					 		*******
 	***************************************************************/
 	var bugObject = function(bugX, bugY, bugType, bugSpeed, bugScore) {
+		this.bugAlpha = DEFAULT_BUG_ALPHA;
 		this.bugX = bugX;
 		this.bugY = bugY;
 		this.bugType = bugType;
@@ -196,13 +228,15 @@ window.onload = function() {
 			var deltaX;
 			var deltaY;
 			var distance;
-			var food;;
+			var food;
+			var minDistance;
 			for (var i = 0; i < foodList.length; i++) {
 				food = foodList[i];
 				deltaX = food.foodX - this.bugX;
 				deltaY = food.foodY - this.bugY;
 				distance = Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
 				if (typeof minDistance === "undefined" || minDistance > distance) {
+					minDistance = distance;
 					this.bugClosestFoodDistance = distance;
 					this.bugClosestFood = food;
 					this.bugIncrementX = (((deltaX)/distance)*this.bugSpeed)/FRAME_RATE;
@@ -210,18 +244,14 @@ window.onload = function() {
 				} 
 			}
 		};
-
-		// this.bugMove = function(){
-		// 	this.setClosestFood();
-		// 	if(this.bugClosestFoodDistance < OVERLAP_DISTANCE){
-		// 		deleteObj(this.bugClosestFood, foodList);
-		// 		deleteObj(this, bugList);
-		// 	}
-		// 	else{
-		// 		this.bugX += this.bugIncrementX;
-		// 		this.bugY += this.bugIncrementY;
-		// 	}
-		// };
+		this.getDistance = function(targetX, targetY) {
+			var deltaX = targetX - this.bugX;
+			var deltaY = targetY - this.bugY;
+			return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
+		};
+		this.setBugAlpha = function(newAlpha) {
+			this.bugAlpha = newAlpha;
+		}
 	}
 
 
@@ -288,16 +318,39 @@ window.onload = function() {
 		}
 		return bug;
 	}
+	
+	function killBugs(event){
+		/* Two websites used to come up with this:
+			1. http://stackoverflow.com/questions/442404/retrieve-the-position-x-y-of-an-html-element
+			2. http://www.kirupa.com/html5/getting_mouse_click_position.htm
+		*/
+		var bug;
+		var rectangle = viewPortCanvas.getBoundingClientRect();
+		var x_skew = rectangle.left;
+		var y_skew = rectangle.top;
+		var x = event.clientX - x_skew;
+		var y = event.clientY - y_skew;
+		for(i=0; i<bugList.length; i++){
+			bug = bugList[i];
+			if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
+				score+=bug.bugScore;
+				bugToFadeList.push(bug);
+				deleteObj(bug, bugList);
+				upDateVisualScore();
+			}
+		}
+	}
 
 	/**************************************************************
 	****         DRAW BUG and FOOD 							*******
 	***************************************************************/
 
-	function drawBug(bugObject){
-		drawBugGeneral(bugObject);
+	function drawBug(bugObject, deltaAlpha){
+		deltaAlpha = deltaAlpha || 0;
+		drawBugGeneral(bugObject, deltaAlpha);
 		if(bugObject.bugType === "red"){
 			// somehow the red is mutated so they have wings!
-			drawBugWings(bugObject);
+			drawBugWings(bugObject, deltaAlpha);
 		}
 	}
 	
@@ -345,7 +398,10 @@ window.onload = function() {
 
 	// function name specify which object it is drawing so the argument should be the object itself
 	
-	function drawBugWings(bugObject){
+	function drawBugWings(bugObject, deltaAlpha){
+		viewPortContext.save();
+		viewPortContext.globalAlpha = bugObject.bugAlpha;
+		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
 		var y = bugObject.bugY;
 		viewPortContext.beginPath();
@@ -361,9 +417,13 @@ window.onload = function() {
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = "Black";
 		viewPortContext.stroke();
+		viewPortContext.restore();
 	}
 	
-	function drawBugGeneral(bugObject){
+	function drawBugGeneral(bugObject, deltaAlpha){
+		viewPortContext.save();
+		viewPortContext.globalAlpha = bugObject.bugAlpha;
+		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
 		var y = bugObject.bugY;
 		var color = bugObject.bugType;
@@ -412,7 +472,9 @@ window.onload = function() {
 		viewPortContext.strokeStyle = colorSecond;
 		viewPortContext.stroke();
 		
-		drawSmiley(x, y+10, 2)
+		drawSmiley(x, y+10, 2);
+
+		viewPortContext.restore();
 	}
 
 	function drawBugLegs(bugObject){
@@ -524,4 +586,6 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
+	viewPortCanvas.addEventListener("click", killBugs, false);
+	calculateAndSetHighScore();
 }
