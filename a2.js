@@ -10,14 +10,17 @@ window.onload = function() {
 	var pauseButton = document.getElementById("pauseButton");
 	var backButton = document.getElementById("backButton");
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
+	var currentScorePara = document.getElementById("currentScore");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
+	var bugToFadeList = [];
 	var createBugsIntervalId;
 	var reDrawObjectsIntervalId;
 	var highScore = 0;
 
 	// CONSTANT
+	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
 	var FRAME_RATE = 60;
 	var TOTAL_FOOD_NUMBER = 5;
 	var OVERLAP_DISTANCE = 20;
@@ -27,6 +30,7 @@ window.onload = function() {
 	var DEFAULT_FOOD_HEIGHT = 10;
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
 	var FOOD_TYPES = ["apple", "orange", "banana"];
+	var BUG_KILL_RADIUS = 30;
 
 
 	/**************************************************************
@@ -34,6 +38,7 @@ window.onload = function() {
 	***************************************************************/
 	function startGame() {
 		dropAll();
+		upDateVisualScore();
         createFoods();
         createBugs();
         reDrawObjects();
@@ -58,13 +63,13 @@ window.onload = function() {
 	}
 
 	function endGame(){
-	        window.clearInterval(createBugsIntervalId);
-	        window.clearInterval(reDrawObjectsIntervalId);
-	        dropAll();
-	        alert("Your score is: " + score + "!");
-	        calculateAndSetHighScore();
-	        resetScore();
-	        startBackButtonOnclick();
+		window.clearInterval(createBugsIntervalId);
+		window.clearInterval(reDrawObjectsIntervalId);
+		dropAll();
+		alert("Your score is: " + score + "!");
+		calculateAndSetHighScore();
+		resetScore();
+		startBackButtonOnclick();
 	}
 
 
@@ -136,6 +141,10 @@ window.onload = function() {
 		score = 0;
 	}
 
+	function upDateVisualScore() {
+		currentScorePara.innerHTML = "Score: " + score.toString();
+	}
+
 	/**************************************************************
 	****        DRAW BUGS and FOODS 						*******
 	***************************************************************/
@@ -143,6 +152,13 @@ window.onload = function() {
 	function drawBugs() {
 		for(i = 0; i < bugList.length; i++){
 			drawBug(moveBug(bugList[i]));
+		}
+		for(i = 0; i < bugToFadeList.length; i++) {
+			if (bugToFadeList[i].bugAlpha > 0){
+				drawBug(bugToFadeList[i], DEFAULT_BUG_ALPHA/(2000/FRAME_RATE));		
+			} else {
+				deleteObj(bugToFadeList[i], bugToFadeList);
+			}
 		}
 	}
 	
@@ -198,6 +214,7 @@ window.onload = function() {
 	****         MAKE BUG and FOOD 					 		*******
 	***************************************************************/
 	var bugObject = function(bugX, bugY, bugType, bugSpeed, bugScore) {
+		this.bugAlpha = DEFAULT_BUG_ALPHA;
 		this.bugX = bugX;
 		this.bugY = bugY;
 		this.bugType = bugType;
@@ -227,6 +244,14 @@ window.onload = function() {
 				} 
 			}
 		};
+		this.getDistance = function(targetX, targetY) {
+			var deltaX = targetX - this.bugX;
+			var deltaY = targetY - this.bugY;
+			return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
+		};
+		this.setBugAlpha = function(newAlpha) {
+			this.bugAlpha = newAlpha;
+		}
 	}
 
 
@@ -305,15 +330,13 @@ window.onload = function() {
 		var y_skew = rectangle.top;
 		var x = event.clientX - x_skew;
 		var y = event.clientY - y_skew;
-		var interval_x = 16;
-		var interval_y = 50;
 		for(i=0; i<bugList.length; i++){
 			bug = bugList[i];
-			if((x-interval_x/2)<bug.bugX&&bug.bugX<(x+interval_x/2)){
-				if((y-(interval_y/2)*0.5)<bug.bugY&&bug.bugY<(y+(interval_y/2))*1.5){
-					score+=bug.bugScore; 
-					deleteObj(bug, bugList);
-				}
+			if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
+				score+=bug.bugScore;
+				bugToFadeList.push(bug);
+				deleteObj(bug, bugList);
+				upDateVisualScore();
 			}
 		}
 	}
@@ -322,11 +345,12 @@ window.onload = function() {
 	****         DRAW BUG and FOOD 							*******
 	***************************************************************/
 
-	function drawBug(bugObject){
-		drawBugGeneral(bugObject);
+	function drawBug(bugObject, deltaAlpha){
+		deltaAlpha = deltaAlpha || 0;
+		drawBugGeneral(bugObject, deltaAlpha);
 		if(bugObject.bugType === "red"){
 			// somehow the red is mutated so they have wings!
-			drawBugWings(bugObject);
+			drawBugWings(bugObject, deltaAlpha);
 		}
 	}
 	
@@ -374,7 +398,10 @@ window.onload = function() {
 
 	// function name specify which object it is drawing so the argument should be the object itself
 	
-	function drawBugWings(bugObject){
+	function drawBugWings(bugObject, deltaAlpha){
+		viewPortContext.save();
+		viewPortContext.globalAlpha = bugObject.bugAlpha;
+		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
 		var y = bugObject.bugY;
 		viewPortContext.beginPath();
@@ -390,9 +417,13 @@ window.onload = function() {
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = "Black";
 		viewPortContext.stroke();
+		viewPortContext.restore();
 	}
 	
-	function drawBugGeneral(bugObject){
+	function drawBugGeneral(bugObject, deltaAlpha){
+		viewPortContext.save();
+		viewPortContext.globalAlpha = bugObject.bugAlpha;
+		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
 		var y = bugObject.bugY;
 		var color = bugObject.bugType;
@@ -441,7 +472,9 @@ window.onload = function() {
 		viewPortContext.strokeStyle = colorSecond;
 		viewPortContext.stroke();
 		
-		drawSmiley(x, y+10, 2)
+		drawSmiley(x, y+10, 2);
+
+		viewPortContext.restore();
 	}
 
 	function drawBugLegs(bugObject){
