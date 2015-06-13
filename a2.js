@@ -32,6 +32,7 @@ window.onload = function() {
 	****        MAIN				 						*******
 	***************************************************************/
 	function startGame() {
+		dropAll();
         createFoods();
         createBugs();
         reDrawObjects();
@@ -58,6 +59,7 @@ window.onload = function() {
 	function endGame(){
 	        window.clearInterval(createBugsIntervalId);
 	        window.clearInterval(reDrawObjectsIntervalId);
+	        dropAll();
 	        alert("Your score is: " + score + "!");
 	}
 
@@ -67,6 +69,12 @@ window.onload = function() {
 	***************************************************************/
 	var viewPortCanvasClear = function() {
 		viewPortContext.clearRect(0, 0, viewPortCanvas.width, viewPortCanvas.height);
+	}
+
+	var dropAll = function() {
+		foodList = [];
+		bugList = [];
+		viewPortCanvasClear();
 	}
 
 	var getLevel = function() {
