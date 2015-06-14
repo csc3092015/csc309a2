@@ -263,14 +263,11 @@ window.onload = function() {
 			BUG_SPAWN_LOWER_BOUND_MILLIE 
 			+ Math.random() 
 			* (BUG_SPAWN_UPPER_BOUND_MILLIE - BUG_SPAWN_LOWER_BOUND_MILLIE);
-		if (typeof lastTimeBugSpawnedInMillie === "undefined") {
-			return interval;
-		} else {
-			var timeElapsedSinceLastBugSpawned = 
-			new Date().getTime() - lastTimeBugSpawnedInMillie;
-			// alert(timeElapsedSinceLastBugSpawned);
-			return interval - timeElapsedSinceLastBugSpawned;
-		}
+		lastTimeBugSpawnedInMillie = lastTimeBugSpawnedInMillie || startTime	
+		var timeElapsedSinceLastBugSpawned = 
+		new Date().getTime() - lastTimeBugSpawnedInMillie;
+		// alert(timeElapsedSinceLastBugSpawned);
+		return interval - timeElapsedSinceLastBugSpawned;
 	}
 	
 	var createFoods = function(){
