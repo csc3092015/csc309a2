@@ -29,7 +29,7 @@ window.onload = function() {
 	var highScore = 0;
 
 	// CONSTANT
-	var DEFAULT_GAME_LENGTH_SEC = 60;
+	var DEFAULT_GAME_LENGTH_SEC = 61;
 	var DEFAULT_BUG_FADE_TIME_MILLIE = 2000;
 	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
 	var FRAME_RATE = 60;
@@ -155,11 +155,11 @@ window.onload = function() {
 	
 	var gameOverPopup = function() {
 		gameOverPage.style.display = 'block';
-		highScorePopPara.innerHTML = "Your current score is: " + score.toString() + ".";
+		highScorePopPara.innerHTML = "Your current score is: " + score.toString();
 	}
 
 	function isGameOver() {
-		if (foodList.length === 0 || Math.floor(timeRemaining) == 0) {
+		if (foodList.length === 0 || Math.floor(timeRemaining) <= 0) {
 			endGame();
 			return true;
 		}
@@ -211,7 +211,7 @@ window.onload = function() {
 	}
 	
 	function resetTimeRemaining(){
-		timeRemaining = 60;
+		timeRemaining = DEFAULT_GAME_LENGTH_SEC;
 	}
 
 	/**************************************************************
