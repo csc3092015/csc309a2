@@ -1,5 +1,7 @@
 window.onload = function() {
 	// GLOBAL VARIABLE
+	var startTime;
+	var timeRemaining = 60;
 	var paused = false;
 	var level;
 	var score = 0;
@@ -7,11 +9,16 @@ window.onload = function() {
 	var startPage = document.getElementById("startPage");
 	var currentPage = 'startPage';
 	var gamePage = document.getElementById("gamePage");
+	var gameOverPage = document.getElementById("gameOverPage");
 	var startButton = document.getElementById("startButton");
+	var restartButton = document.getElementById("restartButton");
 	var pauseButton = document.getElementById("pauseButton");
 	var backButton = document.getElementById("backButton");
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
 	var currentScorePara = document.getElementById("currentScore");
+	var highScorePara = document.getElementById("highScore");
+	var highScorePopPara = document.getElementById("highScorePop");
+	var timePara = document.getElementById("timeLeft");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
@@ -38,24 +45,28 @@ window.onload = function() {
 	****        MAIN				 						*******
 	***************************************************************/
 	function startGame() {
+		gameOverPage.style.display = 'none';
 		dropAll();
 		upDateVisualScore();
         createFoods();
         createBugs();
         reDrawObjects();
+        resetTimeRemaining();
+        setTime(timeRemaining);
 	}
 
 	function pauseUnpause(){
 	        /* If game is paused, resume. Otherwise pause. */
 	        if(paused===true){
-		        assignBugSpeeds();
 		        createBugs();
+		        reDrawObjects();
 		        document.getElementById("pauseButton").innerHTML = "Pause";
+		        setTime(timeRemaining);
 		        paused = false;
 	        }
 	        else{
-		        stopAllBugs();
 		        window.clearInterval(createBugsIntervalId);
+		        window.clearInterval(reDrawObjectsIntervalId);
 		        document.getElementById("pauseButton").innerHTML = "Resume";
 		        paused = true;
 	        }
@@ -73,16 +84,17 @@ window.onload = function() {
 		viewPortCanvasClear();
 		drawBugs();
 		drawFoods();
+		updateTime();
 	}
 
 	function endGame(){
 		window.clearInterval(createBugsIntervalId);
 		window.clearInterval(reDrawObjectsIntervalId);
 		dropAll();
-		alert("Your score is: " + score + "!");
 		calculateAndSetHighScore();
+		resetTimeRemaining();
+		gameOverPopup();
 		resetScore();
-		startBackButtonOnclick();
 	}
 
 
@@ -120,16 +132,23 @@ window.onload = function() {
 			gamePage.style.display = 'block';
 			currentPage = 'gamePage';
 			viewPortCanvasClear();
-		} else {
+			startGame();
+		} 
+		else {
+			gameOverPage.style.display = 'none';
 			startPage.style.display = 'block';
 			gamePage.style.display = 'none';
 			currentPage = 'startPage';
 		}
-		startGame();
+	}
+	
+	var gameOverPopup = function() {
+		gameOverPage.style.display = 'block';
+		highScorePopPara.innerHTML = "Your current score is: " + score.toString() + ".";
 	}
 
 	function isGameOver() {
-		if (foodList.length === 0) {
+		if (foodList.length === 0 || Math.floor(timeRemaining) == 0) {
 			endGame();
 			return true;
 		}
@@ -147,7 +166,7 @@ window.onload = function() {
 		if(score>highScore){
 			highScore = score;
 		}
-		document.getElementById("highScoreValue").innerHTML = highScore;
+		highScorePara.innerHTML = "High Score: " + highScore.toString();
 	}
 	
 	function resetScore(){
@@ -156,6 +175,28 @@ window.onload = function() {
 
 	function upDateVisualScore() {
 		currentScorePara.innerHTML = "Score: " + score.toString();
+	}
+	
+	
+	/**************************************************************
+	****        TIMER FUNCTIONS       						*******
+	***************************************************************/
+	
+	function setTime(timeInput){
+		timePara.innerHTML = "Time: " + timeInput.toString();
+		startTime = new Date().getTime();
+	}
+	
+	function updateTime(){
+		var currentTime = new Date().getTime();
+		var timeElapsed = currentTime - startTime;
+		timeRemaining = timeRemaining - timeElapsed/1000;
+		setTime(Math.floor(timeRemaining));
+		
+	}
+	
+	function resetTimeRemaining(){
+		timeRemaining = 60;
 	}
 
 	/**************************************************************
@@ -305,33 +346,6 @@ window.onload = function() {
 		return bug;
 	}
 	
-	var assignBugSpeeds = function(){
-		for(i=0; i<bugList.length; i++){
-			bug = bugList[i];
-			if(bug.bugType == "black"){
-				if (level === 1) {
-					bug.bugSpeed = 150;
-				} else {
-					bug.bugSpeed = 200;
-					}
-			}
-			else if(bug.bugType == "red"){
-				if (level === 1) {
-					bug.bugSpeed = 75;
-				} else {
-					bug.bugSpeed = 100;
-				}
-				}
-				else{
-				if (level === 1) {
-					bug.bugSpeed = 60;
-				} else {
-					bug.bugSpeed = 80;
-				}
-			}
-		}
-	}
-	
 	var makeFood = function(foodX, foodY) {
 		var random = Math.floor(FOOD_TYPES.length * Math.random());
 		var food = {
@@ -357,13 +371,6 @@ window.onload = function() {
 			bug.bugY += bug.bugIncrementY;
 		}
 		return bug;
-	}
-	
-	function stopAllBugs(){
-		for(i=0; i<bugList.length; i++){
-			bug = bugList[i];
-			bug.bugSpeed = 0;
-		}
 	}
 	
 	function killBugs(event){
@@ -635,6 +642,7 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
+	restartButton.onclick = startGame;
 	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.addEventListener("click", killBugs, false);
 	calculateAndSetHighScore();

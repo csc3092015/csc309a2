@@ -20,17 +20,17 @@
 				<input type="radio" name="levelRadioButton" value="2" />2<br/>				
 			</form>
 			<button type="button" id="startButton">Start Game</button>
-			<p id="highScore">High Score: <a id="highScoreValue"></a></p>
+			<p id="highScore"></p>
 		</section>
 
 		<!-- Game Page -->
 		<section id="gamePage">
 			<div id="infoBar">
 		    	<div id="timer">
-		   			<!-- Some JS function called here so that a timer can be used -->
+		   			<p id="timeLeft"></p>
 		    	</div>
 		    	<div>
-			    	<button type="button" id="pauseButton" onclick="pauseUnpause()">Pause</button>
+			    	<div id="pauseButton" onclick="pauseUnpause()">Pause</div>
 			    </div>
 		    	<div>
 		    		<p id="currentScore"></p>
@@ -41,7 +41,15 @@
 					Your browser does not support the HTML5 canvas tag.
 				</canvas>
 		    </div>
-		    <button type="button" id="backButton">Back</button> <!-- this is just for testing purpose -->
+		    <div id="gameOverPage">
+			    <p id="highScorePop"></p>
+			    <div id="restartButton">
+				    <p id="restartPara">Restart Game</p>
+				</div>
+			    <div id="backButton">
+				    <p id="exitPara">Exit</p>
+				</div>
+		    </div>
 	    </section>
 	</body>
 </html>
