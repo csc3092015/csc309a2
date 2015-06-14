@@ -1,5 +1,6 @@
 window.onload = function() {
 	// GLOBAL VARIABLE
+	var paused = false;
 	var level;
 	var score = 0;
 	var levelForm = document.getElementById("levelForm");
@@ -46,6 +47,18 @@ window.onload = function() {
 
 	function pauseUnpause(){
 	        /* If game is paused, resume. Otherwise pause. */
+	        if(paused===true){
+		        assignBugSpeeds();
+		        createBugs();
+		        document.getElementById("pauseButton").innerHTML = "Pause";
+		        paused = false;
+	        }
+	        else{
+		        stopAllBugs();
+		        window.clearInterval(createBugsIntervalId);
+		        document.getElementById("pauseButton").innerHTML = "Resume";
+		        paused = true;
+	        }
 	}
 
 	function reDrawObjects(){
@@ -292,6 +305,33 @@ window.onload = function() {
 		return bug;
 	}
 	
+	var assignBugSpeeds = function(){
+		for(i=0; i<bugList.length; i++){
+			bug = bugList[i];
+			if(bug.bugType == "black"){
+				if (level === 1) {
+					bug.bugSpeed = 150;
+				} else {
+					bug.bugSpeed = 200;
+					}
+			}
+			else if(bug.bugType == "red"){
+				if (level === 1) {
+					bug.bugSpeed = 75;
+				} else {
+					bug.bugSpeed = 100;
+				}
+				}
+				else{
+				if (level === 1) {
+					bug.bugSpeed = 60;
+				} else {
+					bug.bugSpeed = 80;
+				}
+			}
+		}
+	}
+	
 	var makeFood = function(foodX, foodY) {
 		var random = Math.floor(FOOD_TYPES.length * Math.random());
 		var food = {
@@ -319,25 +359,34 @@ window.onload = function() {
 		return bug;
 	}
 	
+	function stopAllBugs(){
+		for(i=0; i<bugList.length; i++){
+			bug = bugList[i];
+			bug.bugSpeed = 0;
+		}
+	}
+	
 	function killBugs(event){
 		/* Two websites used to come up with this:
 			1. http://stackoverflow.com/questions/442404/retrieve-the-position-x-y-of-an-html-element
 			2. http://www.kirupa.com/html5/getting_mouse_click_position.htm
 		*/
-		var bug;
-		var rectangle = viewPortCanvas.getBoundingClientRect();
-		var x_skew = rectangle.left;
-		var y_skew = rectangle.top;
-		var x = event.clientX - x_skew;
-		var y = event.clientY - y_skew;
-		for(i=0; i<bugList.length; i++){
-			bug = bugList[i];
-			if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
-				score+=bug.bugScore;
-				bugToFadeList.push(bug);
-				deleteObj(bug, bugList);
-				upDateVisualScore();
-			}
+		if(!paused){
+			var bug;
+			var rectangle = viewPortCanvas.getBoundingClientRect();
+			var x_skew = rectangle.left;
+			var y_skew = rectangle.top;
+			var x = event.clientX - x_skew;
+			var y = event.clientY - y_skew;
+			for(i=0; i<bugList.length; i++){
+				bug = bugList[i];
+				if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
+					score+=bug.bugScore;
+					bugToFadeList.push(bug);
+					deleteObj(bug, bugList);
+					upDateVisualScore();
+				}
+			}	
 		}
 	}
 
@@ -586,6 +635,7 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
+	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.addEventListener("click", killBugs, false);
 	calculateAndSetHighScore();
 }
