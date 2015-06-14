@@ -167,6 +167,7 @@ window.onload = function() {
 			highScore = score;
 		}
 		highScorePara.innerHTML = "High Score: " + highScore.toString();
+		highScorePara.style.fontSize = "Medium";
 	}
 	
 	function resetScore(){

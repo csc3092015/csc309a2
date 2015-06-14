@@ -9,47 +9,49 @@
 		<!-- Icon comes from http://www.adventurefinder.co.uk/images/bug_b.png -->
 	</head>
 	<body>
-		<!-- Start Page -->
-		<section id="startPage">	
-			<header>
-				<h1>Game Menu</h1>
-			</header>
-			<h2>Level: </h2>
-			<form id="levelForm">
-				<input type="radio" name="levelRadioButton" value="1" />1
-				<input type="radio" name="levelRadioButton" value="2" />2<br/>				
-			</form>
-			<button type="button" id="startButton">Start Game</button>
-			<p id="highScore"></p>
-		</section>
-
-		<!-- Game Page -->
-		<section id="gamePage">
-			<div id="infoBar">
-		    	<div id="timer">
-		   			<p id="timeLeft"></p>
-		    	</div>
-		    	<div>
-			    	<div id="pauseButton" onclick="pauseUnpause()">Pause</div>
+		<div id="wrapper">
+			<!-- Start Page -->
+			<section id="startPage">	
+				<header>
+					<h1>Game Menu</h1>
+				</header>
+				<form id="levelForm">
+					<h2>Level: </h2>
+					<input type="radio" name="levelRadioButton" value="1" />1
+					<input type="radio" name="levelRadioButton" value="2" />2<br/>				
+				</form>
+				<button type="button" id="startButton">Start Game</button>
+				<p id="highScore"></p>
+			</section>
+	
+			<!-- Game Page -->
+			<section id="gamePage">
+				<div id="infoBar">
+			    	<div id="timer">
+			   			<p id="timeLeft"></p>
+			    	</div>
+			    	<div>
+				    	<div id="pauseButton" onclick="pauseUnpause()">Pause</div>
+				    </div>
+			    	<div>
+			    		<p id="currentScore"></p>
+			    	</div>
 			    </div>
-		    	<div>
-		    		<p id="currentScore"></p>
-		    	</div>
-		    </div>
-		    <div id="viewPort">
-		    	<canvas id="viewPortCanvas" width="400" height="600">
-					Your browser does not support the HTML5 canvas tag.
-				</canvas>
-		    </div>
-		    <div id="gameOverPage">
-			    <p id="highScorePop"></p>
-			    <div id="restartButton">
-				    <p id="restartPara">Restart Game</p>
-				</div>
-			    <div id="backButton">
-				    <p id="exitPara">Exit</p>
-				</div>
-		    </div>
-	    </section>
+			    <div id="viewPort">
+			    	<canvas id="viewPortCanvas" width="400" height="600">
+						Your browser does not support the HTML5 canvas tag.
+					</canvas>
+			    </div>
+			    <div id="gameOverPage">
+				    <p id="highScorePop"></p>
+				    <div id="restartButton">
+					    <p id="restartPara">Restart Game</p>
+					</div>
+				    <div id="backButton">
+					    <p id="exitPara">Exit</p>
+					</div>
+			    </div>
+	    	</section>
+		</div>
 	</body>
 </html>
