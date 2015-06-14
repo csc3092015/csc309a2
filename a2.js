@@ -1,16 +1,25 @@
 window.onload = function() {
 	// GLOBAL VARIABLE
+	var startTime;
+	var timeRemaining = 60;
+	var paused = false;
 	var level;
 	var score = 0;
 	var levelForm = document.getElementById("levelForm");
 	var startPage = document.getElementById("startPage");
 	var currentPage = 'startPage';
 	var gamePage = document.getElementById("gamePage");
+	var gameOverPage = document.getElementById("gameOverPage");
 	var startButton = document.getElementById("startButton");
+	var restartButton = document.getElementById("restartButton");
 	var pauseButton = document.getElementById("pauseButton");
 	var backButton = document.getElementById("backButton");
+	var viewPort = document.getElementById("viewPort");
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
 	var currentScorePara = document.getElementById("currentScore");
+	var highScorePara = document.getElementById("highScore");
+	var highScorePopPara = document.getElementById("highScorePop");
+	var timePara = document.getElementById("timeLeft");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
@@ -37,15 +46,31 @@ window.onload = function() {
 	****        MAIN				 						*******
 	***************************************************************/
 	function startGame() {
+		gameOverPage.style.display = 'none';
 		dropAll();
 		upDateVisualScore();
         createFoods();
         createBugs();
         reDrawObjects();
+        resetTimeRemaining();
+        setTime(timeRemaining);
 	}
 
 	function pauseUnpause(){
 	        /* If game is paused, resume. Otherwise pause. */
+	        if(paused===true){
+		        createBugs();
+		        reDrawObjects();
+		        document.getElementById("pauseButton").innerHTML = "Pause";
+		        setTime(timeRemaining);
+		        paused = false;
+	        }
+	        else{
+		        window.clearInterval(createBugsIntervalId);
+		        window.clearInterval(reDrawObjectsIntervalId);
+		        document.getElementById("pauseButton").innerHTML = "Resume";
+		        paused = true;
+	        }
 	}
 
 	function reDrawObjects(){
@@ -60,16 +85,17 @@ window.onload = function() {
 		viewPortCanvasClear();
 		drawBugs();
 		drawFoods();
+		updateTime();
 	}
 
 	function endGame(){
 		window.clearInterval(createBugsIntervalId);
 		window.clearInterval(reDrawObjectsIntervalId);
 		dropAll();
-		alert("Your score is: " + score + "!");
 		calculateAndSetHighScore();
+		resetTimeRemaining();
+		gameOverPopup();
 		resetScore();
-		startBackButtonOnclick();
 	}
 
 
@@ -107,16 +133,23 @@ window.onload = function() {
 			gamePage.style.display = 'block';
 			currentPage = 'gamePage';
 			viewPortCanvasClear();
-		} else {
+			startGame();
+		} 
+		else {
+			gameOverPage.style.display = 'none';
 			startPage.style.display = 'block';
 			gamePage.style.display = 'none';
 			currentPage = 'startPage';
 		}
-		startGame();
+	}
+	
+	var gameOverPopup = function() {
+		gameOverPage.style.display = 'block';
+		highScorePopPara.innerHTML = "Your current score is: " + score.toString() + ".";
 	}
 
 	function isGameOver() {
-		if (foodList.length === 0) {
+		if (foodList.length === 0 || Math.floor(timeRemaining) == 0) {
 			endGame();
 			return true;
 		}
@@ -134,7 +167,8 @@ window.onload = function() {
 		if(score>highScore){
 			highScore = score;
 		}
-		document.getElementById("highScoreValue").innerHTML = highScore;
+		highScorePara.innerHTML = "High Score: " + highScore.toString();
+		highScorePara.style.fontSize = "Medium";
 	}
 	
 	function resetScore(){
@@ -143,6 +177,28 @@ window.onload = function() {
 
 	function upDateVisualScore() {
 		currentScorePara.innerHTML = "Score: " + score.toString();
+	}
+	
+	
+	/**************************************************************
+	****        TIMER FUNCTIONS       						*******
+	***************************************************************/
+	
+	function setTime(timeInput){
+		timePara.innerHTML = "Time: " + timeInput.toString();
+		startTime = new Date().getTime();
+	}
+	
+	function updateTime(){
+		var currentTime = new Date().getTime();
+		var timeElapsed = currentTime - startTime;
+		timeRemaining = timeRemaining - timeElapsed/1000;
+		setTime(Math.floor(timeRemaining));
+		
+	}
+	
+	function resetTimeRemaining(){
+		timeRemaining = 60;
 	}
 
 	/**************************************************************
@@ -324,20 +380,22 @@ window.onload = function() {
 			1. http://stackoverflow.com/questions/442404/retrieve-the-position-x-y-of-an-html-element
 			2. http://www.kirupa.com/html5/getting_mouse_click_position.htm
 		*/
-		var bug;
-		var rectangle = viewPortCanvas.getBoundingClientRect();
-		var x_skew = rectangle.left;
-		var y_skew = rectangle.top;
-		var x = event.clientX - x_skew;
-		var y = event.clientY - y_skew;
-		for(i=0; i<bugList.length; i++){
-			bug = bugList[i];
-			if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
-				score+=bug.bugScore;
-				bugToFadeList.push(bug);
-				deleteObj(bug, bugList);
-				upDateVisualScore();
-			}
+		if(!paused){
+			var bug;
+			var rectangle = viewPortCanvas.getBoundingClientRect();
+			var x_skew = rectangle.left;
+			var y_skew = rectangle.top;
+			var x = event.clientX - x_skew;
+			var y = event.clientY - y_skew;
+			for(i=0; i<bugList.length; i++){
+				bug = bugList[i];
+				if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
+					score+=bug.bugScore;
+					bugToFadeList.push(bug);
+					deleteObj(bug, bugList);
+					upDateVisualScore();
+				}
+			}	
 		}
 	}
 
@@ -586,6 +644,8 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
+	restartButton.onclick = startGame;
+	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.addEventListener("click", killBugs, false);
 	calculateAndSetHighScore();
 }
