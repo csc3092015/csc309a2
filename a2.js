@@ -647,7 +647,5 @@ window.onload = function() {
 	restartButton.onclick = startGame;
 	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.addEventListener("click", killBugs, false);
-	viewPortCanvas.addEventListener("click", function(e){ e.preventDefault(); }, false);
-	viewPort.addEventListener("click", function(e){ e.preventDefault(); }, false);
 	calculateAndSetHighScore();
 }
