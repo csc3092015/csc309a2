@@ -1,7 +1,7 @@
 window.onload = function() {
 	// GLOBAL VARIABLE
+	var lastTimeBugSpawnedInMillie;
 	var startTime;
-	var timeRemaining = 60;
 	var paused = false;
 	var level;
 	var score = 0;
@@ -29,6 +29,8 @@ window.onload = function() {
 	var highScore = 0;
 
 	// CONSTANT
+	var DEFAULT_GAME_LENGTH_SEC = 60;
+	var DEFAULT_BUG_FADE_TIME_MILLIE = 2000;
 	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
 	var FRAME_RATE = 60;
 	var TOTAL_FOOD_NUMBER = 5;
@@ -40,6 +42,11 @@ window.onload = function() {
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
 	var FOOD_TYPES = ["apple", "orange", "banana"];
 	var BUG_KILL_RADIUS = 30;
+	var BUG_SPAWN_LOWER_BOUND_MILLIE = 1000;
+	var BUG_SPAWN_UPPER_BOUND_MILLIE = 3000;
+
+	// GLOBAL VARIBALE DEPEND ON CONSTANT
+	var timeRemaining = DEFAULT_GAME_LENGTH_SEC;
 
 
 	/**************************************************************
@@ -49,26 +56,29 @@ window.onload = function() {
 		gameOverPage.style.display = 'none';
 		dropAll();
 		upDateVisualScore();
+		updateStartTime();
+		updateVisualTimeRemaining();
         createFoods();
         createBugs();
         reDrawObjects();
         resetTimeRemaining();
-        setTime(timeRemaining);
+
 	}
 
 	function pauseUnpause(){
 	        /* If game is paused, resume. Otherwise pause. */
-	        if(paused===true){
+	        if(paused === true){
+	        	updateStartTime();
+		        updateVisualTimeRemaining();
 		        createBugs();
 		        reDrawObjects();
-		        document.getElementById("pauseButton").innerHTML = "Pause";
-		        setTime(timeRemaining);
+		        pauseButton.innerHTML = "Pause";
 		        paused = false;
 	        }
 	        else{
 		        window.clearInterval(createBugsIntervalId);
 		        window.clearInterval(reDrawObjectsIntervalId);
-		        document.getElementById("pauseButton").innerHTML = "Resume";
+		        pauseButton.innerHTML = "Resume";
 		        paused = true;
 	        }
 	}
@@ -184,17 +194,20 @@ window.onload = function() {
 	****        TIMER FUNCTIONS       						*******
 	***************************************************************/
 	
-	function setTime(timeInput){
-		timePara.innerHTML = "Time: " + timeInput.toString();
+	function updateVisualTimeRemaining(){
+		timePara.innerHTML = "Time: " + Math.floor(timeRemaining).toString();
+	}
+
+	function updateStartTime() {
 		startTime = new Date().getTime();
 	}
 	
 	function updateTime(){
 		var currentTime = new Date().getTime();
 		var timeElapsed = currentTime - startTime;
+		startTime = currentTime;
 		timeRemaining = timeRemaining - timeElapsed/1000;
-		setTime(Math.floor(timeRemaining));
-		
+		updateVisualTimeRemaining();
 	}
 	
 	function resetTimeRemaining(){
@@ -206,12 +219,13 @@ window.onload = function() {
 	***************************************************************/
 
 	function drawBugs() {
-		for(i = 0; i < bugList.length; i++){
+		for(i = bugList.length - 1; i >= 0; i--){
 			drawBug(moveBug(bugList[i]));
 		}
-		for(i = 0; i < bugToFadeList.length; i++) {
+		for(i = bugToFadeList.length - 1; i >= 0; i--){
 			if (bugToFadeList[i].bugAlpha > 0){
-				drawBug(bugToFadeList[i], DEFAULT_BUG_ALPHA/(2000/FRAME_RATE));		
+				drawBug(bugToFadeList[i], 
+					DEFAULT_BUG_ALPHA/(DEFAULT_BUG_FADE_TIME_MILLIE/FRAME_RATE));		
 			} else {
 				deleteObj(bugToFadeList[i], bugToFadeList);
 			}
@@ -228,16 +242,35 @@ window.onload = function() {
 	***************************************************************/
 
 	var createBugs = function() {
-		createBugsIntervalId =
-		setInterval(
+		createBugsIntervalId =			
+		setTimeout(
 			function(){
+				lastTimeBugSpawnedInMillie = new Date().getTime();
 				var bugX = 10 + 380 * Math.random();
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
-				drawBug(bug);	
-			}, 1000 + Math.random() * 2000 // every 1-3 seconds
+				drawBug(bug);
+				createBugs();
+			}, bugSpawnTimeInterval()
 		);
+	}
+
+	function bugSpawnTimeInterval() {
+		// we have to minus the total elapsed time, since the user
+		// can just keep clicking pause button
+		var interval = // every 1-3 seconds
+			BUG_SPAWN_LOWER_BOUND_MILLIE 
+			+ Math.random() 
+			* (BUG_SPAWN_UPPER_BOUND_MILLIE - BUG_SPAWN_LOWER_BOUND_MILLIE);
+		if (typeof lastTimeBugSpawnedInMillie === "undefined") {
+			return interval;
+		} else {
+			var timeElapsedSinceLastBugSpawned = 
+			new Date().getTime() - lastTimeBugSpawnedInMillie;
+			// alert(timeElapsedSinceLastBugSpawned);
+			return interval - timeElapsedSinceLastBugSpawned;
+		}
 	}
 	
 	var createFoods = function(){
@@ -387,7 +420,7 @@ window.onload = function() {
 			var y_skew = rectangle.top;
 			var x = event.clientX - x_skew;
 			var y = event.clientY - y_skew;
-			for(i=0; i<bugList.length; i++){
+			for(i = bugList.length - 1; i >= 0; i--){
 				bug = bugList[i];
 				if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
 					score+=bug.bugScore;
@@ -646,6 +679,6 @@ window.onload = function() {
 	backButton.onclick = startBackButtonOnclick;
 	restartButton.onclick = startGame;
 	pauseButton.onclick = pauseUnpause;
-	viewPortCanvas.addEventListener("click", killBugs, false);
+	viewPortCanvas.onclick = killBugs;
 	calculateAndSetHighScore();
 }
