@@ -14,6 +14,7 @@ window.onload = function() {
 	var restartButton = document.getElementById("restartButton");
 	var pauseButton = document.getElementById("pauseButton");
 	var backButton = document.getElementById("backButton");
+	var viewPort = document.getElementById("viewPort");
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
 	var currentScorePara = document.getElementById("currentScore");
 	var highScorePara = document.getElementById("highScore");
@@ -646,7 +647,7 @@ window.onload = function() {
 	restartButton.onclick = startGame;
 	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.addEventListener("click", killBugs, false);
-	/* From http://stackoverflow.com/questions/880512/prevent-text-selection-after-double-click - Prevents highlight on double click*/
-	viewPortCanvas.addEventListener('clock', function(event){ event.preventDefault(); }, false);
+	viewPortCanvas.addEventListener("click", function(e){ e.preventDefault(); }, false);
+	viewPort.addEventListener("click", function(e){ e.preventDefault(); }, false);
 	calculateAndSetHighScore();
 }
