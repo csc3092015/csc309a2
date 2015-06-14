@@ -646,5 +646,7 @@ window.onload = function() {
 	restartButton.onclick = startGame;
 	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.addEventListener("click", killBugs, false);
+	/* From http://stackoverflow.com/questions/880512/prevent-text-selection-after-double-click - Prevents highlight on double click*/
+	viewPortCanvas.addEventListener('clock', function(event){ event.preventDefault(); }, false);
 	calculateAndSetHighScore();
 }
