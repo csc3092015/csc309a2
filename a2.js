@@ -1,16 +1,25 @@
 window.onload = function() {
 	// GLOBAL VARIABLE
+	var lastTimeBugSpawnedInMillie;
+	var startTime;
+	var paused = false;
 	var level;
 	var score = 0;
 	var levelForm = document.getElementById("levelForm");
 	var startPage = document.getElementById("startPage");
 	var currentPage = 'startPage';
 	var gamePage = document.getElementById("gamePage");
+	var gameOverPage = document.getElementById("gameOverPage");
 	var startButton = document.getElementById("startButton");
+	var restartButton = document.getElementById("restartButton");
 	var pauseButton = document.getElementById("pauseButton");
 	var backButton = document.getElementById("backButton");
+	var viewPort = document.getElementById("viewPort");
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
 	var currentScorePara = document.getElementById("currentScore");
+	var highScorePara = document.getElementById("highScore");
+	var highScorePopPara = document.getElementById("highScorePop");
+	var timePara = document.getElementById("timeLeft");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
@@ -20,6 +29,8 @@ window.onload = function() {
 	var highScore = 0;
 
 	// CONSTANT
+	var DEFAULT_GAME_LENGTH_SEC = 60;
+	var DEFAULT_BUG_FADE_TIME_MILLIE = 2000;
 	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
 	var FRAME_RATE = 60;
 	var TOTAL_FOOD_NUMBER = 5;
@@ -31,21 +42,45 @@ window.onload = function() {
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
 	var FOOD_TYPES = ["apple", "orange", "banana"];
 	var BUG_KILL_RADIUS = 30;
+	var BUG_SPAWN_LOWER_BOUND_MILLIE = 1000;
+	var BUG_SPAWN_UPPER_BOUND_MILLIE = 3000;
+
+	// GLOBAL VARIBALE DEPEND ON CONSTANT
+	var timeRemaining = DEFAULT_GAME_LENGTH_SEC;
 
 
 	/**************************************************************
 	****        MAIN				 						*******
 	***************************************************************/
 	function startGame() {
+		gameOverPage.style.display = 'none';
 		dropAll();
 		upDateVisualScore();
+		updateStartTime();
+		updateVisualTimeRemaining();
         createFoods();
         createBugs();
         reDrawObjects();
+        resetTimeRemaining();
+
 	}
 
 	function pauseUnpause(){
 	        /* If game is paused, resume. Otherwise pause. */
+	        if(paused === true){
+	        	updateStartTime();
+		        updateVisualTimeRemaining();
+		        createBugs();
+		        reDrawObjects();
+		        pauseButton.innerHTML = "Pause";
+		        paused = false;
+	        }
+	        else{
+		        window.clearInterval(createBugsIntervalId);
+		        window.clearInterval(reDrawObjectsIntervalId);
+		        pauseButton.innerHTML = "Resume";
+		        paused = true;
+	        }
 	}
 
 	function reDrawObjects(){
@@ -60,16 +95,17 @@ window.onload = function() {
 		viewPortCanvasClear();
 		drawBugs();
 		drawFoods();
+		updateTime();
 	}
 
 	function endGame(){
 		window.clearInterval(createBugsIntervalId);
 		window.clearInterval(reDrawObjectsIntervalId);
 		dropAll();
-		alert("Your score is: " + score + "!");
 		calculateAndSetHighScore();
+		resetTimeRemaining();
+		gameOverPopup();
 		resetScore();
-		startBackButtonOnclick();
 	}
 
 
@@ -107,16 +143,23 @@ window.onload = function() {
 			gamePage.style.display = 'block';
 			currentPage = 'gamePage';
 			viewPortCanvasClear();
-		} else {
+			startGame();
+		} 
+		else {
+			gameOverPage.style.display = 'none';
 			startPage.style.display = 'block';
 			gamePage.style.display = 'none';
 			currentPage = 'startPage';
 		}
-		startGame();
+	}
+	
+	var gameOverPopup = function() {
+		gameOverPage.style.display = 'block';
+		highScorePopPara.innerHTML = "Your current score is: " + score.toString() + ".";
 	}
 
 	function isGameOver() {
-		if (foodList.length === 0) {
+		if (foodList.length === 0 || Math.floor(timeRemaining) == 0) {
 			endGame();
 			return true;
 		}
@@ -134,7 +177,8 @@ window.onload = function() {
 		if(score>highScore){
 			highScore = score;
 		}
-		document.getElementById("highScoreValue").innerHTML = highScore;
+		highScorePara.innerHTML = "High Score: " + highScore.toString();
+		highScorePara.style.fontSize = "Medium";
 	}
 	
 	function resetScore(){
@@ -144,18 +188,44 @@ window.onload = function() {
 	function upDateVisualScore() {
 		currentScorePara.innerHTML = "Score: " + score.toString();
 	}
+	
+	
+	/**************************************************************
+	****        TIMER FUNCTIONS       						*******
+	***************************************************************/
+	
+	function updateVisualTimeRemaining(){
+		timePara.innerHTML = "Time: " + Math.floor(timeRemaining).toString();
+	}
+
+	function updateStartTime() {
+		startTime = new Date().getTime();
+	}
+	
+	function updateTime(){
+		var currentTime = new Date().getTime();
+		var timeElapsed = currentTime - startTime;
+		startTime = currentTime;
+		timeRemaining = timeRemaining - timeElapsed/1000;
+		updateVisualTimeRemaining();
+	}
+	
+	function resetTimeRemaining(){
+		timeRemaining = 60;
+	}
 
 	/**************************************************************
 	****        DRAW BUGS and FOODS 						*******
 	***************************************************************/
 
 	function drawBugs() {
-		for(i = 0; i < bugList.length; i++){
+		for(i = bugList.length - 1; i >= 0; i--){
 			drawBug(moveBug(bugList[i]));
 		}
-		for(i = 0; i < bugToFadeList.length; i++) {
+		for(i = bugToFadeList.length - 1; i >= 0; i--){
 			if (bugToFadeList[i].bugAlpha > 0){
-				drawBug(bugToFadeList[i], DEFAULT_BUG_ALPHA/(2000/FRAME_RATE));		
+				drawBug(bugToFadeList[i], 
+					DEFAULT_BUG_ALPHA/(DEFAULT_BUG_FADE_TIME_MILLIE/FRAME_RATE));		
 			} else {
 				deleteObj(bugToFadeList[i], bugToFadeList);
 			}
@@ -172,16 +242,32 @@ window.onload = function() {
 	***************************************************************/
 
 	var createBugs = function() {
-		createBugsIntervalId =
-		setInterval(
+		createBugsIntervalId =			
+		setTimeout(
 			function(){
+				lastTimeBugSpawnedInMillie = new Date().getTime();
 				var bugX = 10 + 380 * Math.random();
 				var bugY = 0;
 				var bug = makeBug(bugX, bugY);
 				bugList.push(bug);
-				drawBug(bug);	
-			}, 1000 + Math.random() * 2000 // every 1-3 seconds
+				drawBug(bug);
+				createBugs();
+			}, bugSpawnTimeInterval()
 		);
+	}
+
+	function bugSpawnTimeInterval() {
+		// we have to minus the total elapsed time, since the user
+		// can just keep clicking pause button
+		var interval = // every 1-3 seconds
+			BUG_SPAWN_LOWER_BOUND_MILLIE 
+			+ Math.random() 
+			* (BUG_SPAWN_UPPER_BOUND_MILLIE - BUG_SPAWN_LOWER_BOUND_MILLIE);
+		lastTimeBugSpawnedInMillie = lastTimeBugSpawnedInMillie || startTime	
+		var timeElapsedSinceLastBugSpawned = 
+		new Date().getTime() - lastTimeBugSpawnedInMillie;
+		// alert(timeElapsedSinceLastBugSpawned);
+		return interval - timeElapsedSinceLastBugSpawned;
 	}
 	
 	var createFoods = function(){
@@ -324,20 +410,22 @@ window.onload = function() {
 			1. http://stackoverflow.com/questions/442404/retrieve-the-position-x-y-of-an-html-element
 			2. http://www.kirupa.com/html5/getting_mouse_click_position.htm
 		*/
-		var bug;
-		var rectangle = viewPortCanvas.getBoundingClientRect();
-		var x_skew = rectangle.left;
-		var y_skew = rectangle.top;
-		var x = event.clientX - x_skew;
-		var y = event.clientY - y_skew;
-		for(i=0; i<bugList.length; i++){
-			bug = bugList[i];
-			if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
-				score+=bug.bugScore;
-				bugToFadeList.push(bug);
-				deleteObj(bug, bugList);
-				upDateVisualScore();
-			}
+		if(!paused){
+			var bug;
+			var rectangle = viewPortCanvas.getBoundingClientRect();
+			var x_skew = rectangle.left;
+			var y_skew = rectangle.top;
+			var x = event.clientX - x_skew;
+			var y = event.clientY - y_skew;
+			for(i = bugList.length - 1; i >= 0; i--){
+				bug = bugList[i];
+				if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
+					score+=bug.bugScore;
+					bugToFadeList.push(bug);
+					deleteObj(bug, bugList);
+					upDateVisualScore();
+				}
+			}	
 		}
 	}
 
@@ -586,6 +674,8 @@ window.onload = function() {
 
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
-	viewPortCanvas.addEventListener("click", killBugs, false);
+	restartButton.onclick = startGame;
+	pauseButton.onclick = pauseUnpause;
+	viewPortCanvas.onclick = killBugs;
 	calculateAndSetHighScore();
 }
