@@ -4,9 +4,13 @@ window.onload = function() {
 	var startTime;
 	var paused = false;
 	var level;
+	var levelOneHighscore = 0;
+	var levelTwoHighscore = 0;
 	var score = 0;
 	var levelForm = document.getElementById("levelForm");
 	var startPage = document.getElementById("startPage");
+	var levelOneButton = document.getElementById("levelOne");
+	var levelTwoButton = document.getElementById("levelTwo");
 	var currentPage = 'startPage';
 	var gamePage = document.getElementById("gamePage");
 	var gameOverPage = document.getElementById("gameOverPage");
@@ -18,7 +22,7 @@ window.onload = function() {
 	var viewPortCanvas = document.getElementById("viewPortCanvas");
 	var currentScorePara = document.getElementById("currentScore");
 	var highScorePara = document.getElementById("highScore");
-	var highScorePopPara = document.getElementById("highScorePop");
+	var scorePopPara = document.getElementById("scorePop");
 	var timePara = document.getElementById("timeLeft");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
@@ -26,10 +30,9 @@ window.onload = function() {
 	var bugToFadeList = [];
 	var createBugsIntervalId;
 	var reDrawObjectsIntervalId;
-	var highScore = 0;
 
 	// CONSTANT
-	var DEFAULT_GAME_LENGTH_SEC = 61;
+	var DEFAULT_GAME_LENGTH_SEC = 60;
 	var DEFAULT_BUG_FADE_TIME_MILLIE = 2000;
 	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
 	var FRAME_RATE = 60;
@@ -37,13 +40,14 @@ window.onload = function() {
 	var OVERLAP_DISTANCE = 20;
 	var DEFAULT_BUG_WIDTH = 10;
 	var DEFAULT_BUG_HEIGHT = 40;
-	var DEFAULT_FOOD_WIDTH = 10;
-	var DEFAULT_FOOD_HEIGHT = 10;
+	var DEFAULT_FOOD_WIDTH = 20;
+	var DEFAULT_FOOD_HEIGHT = 20;
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
 	var FOOD_TYPES = ["apple", "orange", "banana"];
 	var BUG_KILL_RADIUS = 30;
 	var BUG_SPAWN_LOWER_BOUND_MILLIE = 1000;
 	var BUG_SPAWN_UPPER_BOUND_MILLIE = 3000;
+	var GAME_HEIGHT = 600;
 
 	// GLOBAL VARIBALE DEPEND ON CONSTANT
 	var timeRemaining = DEFAULT_GAME_LENGTH_SEC;
@@ -67,7 +71,8 @@ window.onload = function() {
 
 	function pauseUnpause(){
 	        /* If game is paused, resume. Otherwise pause. */
-	        if(paused === true){
+	    if(!isGameOver()){
+			if(paused === true){
 	        	updateStartTime();
 		        updateVisualTimeRemaining();
 		        createBugs();
@@ -78,9 +83,10 @@ window.onload = function() {
 	        else{
 		        window.clearInterval(createBugsIntervalId);
 		        window.clearInterval(reDrawObjectsIntervalId);
-		        pauseButton.innerHTML = "Resume";
+		        pauseButton.innerHTML = "Play";
 		        paused = true;
-	        }
+	        }   
+	    }
 	}
 
 	function reDrawObjects(){
@@ -90,6 +96,7 @@ window.onload = function() {
 	function animate() {
 		/* Use this to change the frame of the game per how-ever-many milliseconds to animate game */
 		if(isGameOver()) {
+			endGame();
 			return;
 		}
 		viewPortCanvasClear();
@@ -155,12 +162,11 @@ window.onload = function() {
 	
 	var gameOverPopup = function() {
 		gameOverPage.style.display = 'block';
-		highScorePopPara.innerHTML = "Your current score is: " + score.toString();
+		scorePopPara.innerHTML = "Your current score is: " + score.toString();
 	}
 
 	function isGameOver() {
 		if (foodList.length === 0 || Math.floor(timeRemaining) <= 0) {
-			endGame();
 			return true;
 		}
 		return false;
@@ -174,10 +180,24 @@ window.onload = function() {
 	}
 	
 	function calculateAndSetHighScore(){
-		if(score>highScore){
-			highScore = score;
+		getLevel();
+		if(level == 1 && score > levelOneHighscore){
+			levelOneHighscore = score;
 		}
-		highScorePara.innerHTML = "High Score: " + highScore.toString();
+		else if(score > levelTwoHighscore){
+			levelTwoHighscore = score;
+		}
+		setHighScore();
+	}
+	
+	function setHighScore(){
+		getLevel();
+		if(level == 1){
+			highScorePara.innerHTML = "High Score: " + levelOneHighscore.toString();
+		}
+		else{
+			highScorePara.innerHTML = "High Score: " + levelTwoHighscore.toString();
+		}
 		highScorePara.style.fontSize = "Medium";
 	}
 	
@@ -207,7 +227,9 @@ window.onload = function() {
 		var timeElapsed = currentTime - startTime;
 		startTime = currentTime;
 		timeRemaining = timeRemaining - timeElapsed/1000;
-		updateVisualTimeRemaining();
+		if(Math.floor(timeRemaining>0)){
+			updateVisualTimeRemaining();	
+		}
 	}
 	
 	function resetTimeRemaining(){
@@ -284,7 +306,8 @@ window.onload = function() {
 				(TOTAL_FOOD_NUMBER + 1);
 		for (var i = 0; i < TOTAL_FOOD_NUMBER; i++) {
 			foodX = (i + 1) * spacing + i * DEFAULT_FOOD_WIDTH;
-			foodY = FOOD_SPAWN_HEIGHT;
+			/* Formula below found on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range */
+			foodY = Math.random() * ((GAME_HEIGHT - DEFAULT_FOOD_HEIGHT/2) - (GAME_HEIGHT / 2 + DEFAULT_FOOD_HEIGHT/2)) + (GAME_HEIGHT / 2 + DEFAULT_FOOD_HEIGHT/2);
 			food = makeFood(foodX, foodY);
 			foodList.push(food); 
 			drawFood(food);
@@ -517,7 +540,7 @@ window.onload = function() {
 		var color = bugObject.bugType;
 		drawBugLegs(bugObject);
 		if(color=="black"){
-			colorSecond = "yellow";
+			colorSecond = "grey";
 		}
 		else{
 			colorSecond = color;
@@ -677,5 +700,7 @@ window.onload = function() {
 	restartButton.onclick = startGame;
 	pauseButton.onclick = pauseUnpause;
 	viewPortCanvas.onclick = killBugs;
-	calculateAndSetHighScore();
+	levelOneButton.onclick = setHighScore;
+	levelTwoButton.onclick = setHighScore;
+	setHighScore();
 }
