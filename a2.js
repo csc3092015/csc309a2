@@ -354,8 +354,39 @@ window.onload = function() {
 			}
 		};
 		this.getDistance = function(targetX, targetY) {
-			var deltaX = targetX - this.bugX;
-			var deltaY = targetY - this.bugY;
+			var bugX = this.bugX;
+			var bugY = this.bugY;
+			/*
+			if((targetX > (this.bugX - DEFAULT_BUG_WIDTH / 2)) && ( targetX < (this.bugX + DEFAULT_BUG_WIDTH / 2))){
+				// Within X bounds 
+				bugX = targetX;
+			}
+			else if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+				// Within Y bounds 
+				bugY = targetY;
+			}
+			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
+				// Top left corner 
+				bugX = bugX - DEFAULT_BUG_WIDTH;
+				BUGY = bugY + DEFAULT_BUG_HEIGHT;
+			}
+			else if((targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
+				// Top right corner 
+				bugX = bugX + DEFAULT_BUG_WIDTH;
+				BUGY = bugY + DEFAULT_BUG_HEIGHT;
+			}
+			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2)){
+				// Bottom left corner 
+				bugX = bugX - DEFAULT_BUG_WIDTH;
+				BUGY = bugY - DEFAULT_BUG_HEIGHT;
+			}
+			else{
+				// Bottom right corner
+				bugX = bugX + DEFAULT_BUG_WIDTH;
+				bugY = bugY - DEFAULT_BUG_HEIGHT;
+			}*/
+			var deltaX = targetX - bugX;
+			var deltaY = targetY - bugY;
 			return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
 		};
 		this.setBugAlpha = function(newAlpha) {
@@ -514,7 +545,8 @@ window.onload = function() {
 		viewPortContext.globalAlpha = bugObject.bugAlpha;
 		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
-		var y = bugObject.bugY;
+		// 4 accounts for the skew in the drawBug function
+		var y = bugObject.bugY + 4;
 		viewPortContext.beginPath();
 		viewPortContext.arc(x+4,y-3,4,0,2*Math.PI);
 		viewPortContext.fillStyle = "White";
@@ -536,7 +568,8 @@ window.onload = function() {
 		viewPortContext.globalAlpha = bugObject.bugAlpha;
 		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
-		var y = bugObject.bugY;
+		// 4 accounts for the skew in the drawBug function
+		var y = bugObject.bugY + 4;
 		var color = bugObject.bugType;
 		drawBugLegs(bugObject);
 		if(color=="black"){
@@ -590,7 +623,8 @@ window.onload = function() {
 
 	function drawBugLegs(bugObject){
 		var x = bugObject.bugX;
-		var y = bugObject.bugY;
+		// 4 accounts for the skew in the drawBug function
+		var y = bugObject.bugY + 4;
 		viewPortContext.beginPath();
 		viewPortContext.moveTo(x+6,y);
 		viewPortContext.lineTo(x-6,y);
