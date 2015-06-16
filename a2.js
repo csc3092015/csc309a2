@@ -356,26 +356,26 @@ window.onload = function() {
 		this.getDistance = function(targetX, targetY) {
 			var bugX = this.bugX;
 			var bugY = this.bugY;
-			/*
+			
 			if((targetX > (this.bugX - DEFAULT_BUG_WIDTH / 2)) && ( targetX < (this.bugX + DEFAULT_BUG_WIDTH / 2))){
 				// Within X bounds 
 				bugX = targetX;
 			}
-			else if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+			if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Within Y bounds 
 				bugY = targetY;
 			}
-			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
+			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Top left corner 
 				bugX = bugX - DEFAULT_BUG_WIDTH;
 				BUGY = bugY + DEFAULT_BUG_HEIGHT;
 			}
-			else if((targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
+			else if((targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Top right corner 
 				bugX = bugX + DEFAULT_BUG_WIDTH;
 				BUGY = bugY + DEFAULT_BUG_HEIGHT;
 			}
-			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2)){
+			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2))){
 				// Bottom left corner 
 				bugX = bugX - DEFAULT_BUG_WIDTH;
 				BUGY = bugY - DEFAULT_BUG_HEIGHT;
@@ -384,7 +384,7 @@ window.onload = function() {
 				// Bottom right corner
 				bugX = bugX + DEFAULT_BUG_WIDTH;
 				bugY = bugY - DEFAULT_BUG_HEIGHT;
-			}*/
+			}
 			var deltaX = targetX - bugX;
 			var deltaY = targetY - bugY;
 			return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
@@ -473,7 +473,7 @@ window.onload = function() {
 			var y = event.clientY - y_skew;
 			for(i = bugList.length - 1; i >= 0; i--){
 				bug = bugList[i];
-				if (bug.getDistance(x, y) < BUG_KILL_RADIUS){
+				if (bug.getDistance(x, y) <= BUG_KILL_RADIUS){
 					score+=bug.bugScore;
 					bugToFadeList.push(bug);
 					deleteObj(bug, bugList);
@@ -545,8 +545,7 @@ window.onload = function() {
 		viewPortContext.globalAlpha = bugObject.bugAlpha;
 		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
-		// 4 accounts for the skew in the drawBug function
-		var y = bugObject.bugY + 4;
+		var y = bugObject.bugY;
 		viewPortContext.beginPath();
 		viewPortContext.arc(x+4,y-3,4,0,2*Math.PI);
 		viewPortContext.fillStyle = "White";
@@ -568,8 +567,7 @@ window.onload = function() {
 		viewPortContext.globalAlpha = bugObject.bugAlpha;
 		bugObject.setBugAlpha(bugObject.bugAlpha - deltaAlpha);
 		var x = bugObject.bugX;
-		// 4 accounts for the skew in the drawBug function
-		var y = bugObject.bugY + 4;
+		var y = bugObject.bugY;
 		var color = bugObject.bugType;
 		drawBugLegs(bugObject);
 		if(color=="black"){
@@ -581,7 +579,7 @@ window.onload = function() {
 		
 		viewPortContext.scale(0.5, 1);
 		viewPortContext.beginPath();
-		viewPortContext.arc(x*2,y,6,0,2*Math.PI);
+		viewPortContext.arc(x*2,y+4,6,0,2*Math.PI);
 		viewPortContext.fillStyle = color;
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = color;
@@ -589,47 +587,54 @@ window.onload = function() {
 		
 		viewPortContext.beginPath();
 		viewPortContext.scale(2, 1);
-		viewPortContext.arc(x,y+11,5,0,2*Math.PI)
+		viewPortContext.arc(x,y+15,5,0,2*Math.PI)
 		viewPortContext.fillStyle = colorSecond;
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = colorSecond;
 		viewPortContext.stroke();
 		
 		viewPortContext.beginPath();
-		viewPortContext.arc(x,y-9,3,0,2*Math.PI)
+		viewPortContext.arc(x,y-5,3,0,2*Math.PI)
 		viewPortContext.fillStyle = colorSecond;
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = colorSecond;
 		viewPortContext.stroke();
 		
 		viewPortContext.beginPath();
-		viewPortContext.arc(x,y-15,3,0,2*Math.PI)
+		viewPortContext.arc(x,y-11,3,0,2*Math.PI)
 		viewPortContext.fillStyle = color;
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = color;
 		viewPortContext.stroke();
 		
 		viewPortContext.beginPath();
-		viewPortContext.arc(x,y-21,3,0,2*Math.PI)
+		viewPortContext.arc(x,y-17,3,0,2*Math.PI)
 		viewPortContext.fillStyle = colorSecond;
 		viewPortContext.fill();
 		viewPortContext.strokeStyle = colorSecond;
 		viewPortContext.stroke();
 		
-		drawSmiley(x, y+10, 2);
+		/* For debugging
+		viewPortContext.beginPath();
+		viewPortContext.arc(x,y,20,0,2*Math.PI)
+		viewPortContext.strokeStyle = "black";
+		viewPortContext.stroke();*/
+		
+		drawSmiley(x, y+14, 2);
 
 		viewPortContext.restore();
 	}
 
 	function drawBugLegs(bugObject){
 		var x = bugObject.bugX;
-		// 4 accounts for the skew in the drawBug function
-		var y = bugObject.bugY + 4;
+		var y = bugObject.bugY;
 		viewPortContext.beginPath();
-		viewPortContext.moveTo(x+6,y);
-		viewPortContext.lineTo(x-6,y);
 		viewPortContext.moveTo(x+6,y+4);
 		viewPortContext.lineTo(x-6,y+4);
+		viewPortContext.moveTo(x+6,y+8);
+		viewPortContext.lineTo(x-6,y+8);
+		viewPortContext.moveTo(x+6,y);
+		viewPortContext.lineTo(x-6,y);
 		viewPortContext.moveTo(x+6,y-4);
 		viewPortContext.lineTo(x-6,y-4);
 		viewPortContext.moveTo(x+6,y-8);
@@ -638,8 +643,6 @@ window.onload = function() {
 		viewPortContext.lineTo(x-6,y-12);
 		viewPortContext.moveTo(x+6,y-16);
 		viewPortContext.lineTo(x-6,y-16);
-		viewPortContext.moveTo(x+6,y-20);
-		viewPortContext.lineTo(x-6,y-20);
 		viewPortContext.strokeStyle = "Black";
 		viewPortContext.stroke();
 	}
