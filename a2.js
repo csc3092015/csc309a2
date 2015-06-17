@@ -366,11 +366,11 @@ window.onload = function() {
 				}
 				else if(targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
 					// Top of rectangle
-					BUGY = bugY + DEFAULT_BUG_HEIGHT / 2;
+					bugY = bugY + DEFAULT_BUG_HEIGHT / 2;
 				}
 				else if(targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2)){
 					// Bottom of rectangle
-					BUGY = bugY - DEFAULT_BUG_HEIGHT / 2;
+					bugY = bugY - DEFAULT_BUG_HEIGHT / 2;
 				}
 			}
 			else if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
