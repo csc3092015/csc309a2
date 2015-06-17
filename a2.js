@@ -494,7 +494,6 @@ window.onload = function() {
 			for(i = bugList.length - 1; i >= 0; i--){
 				bug = bugList[i];
 				if (bug.getDistance(x, y) <= BUG_KILL_RADIUS){
-					alert(bug.getDistance(x,y));
 					score+=bug.bugScore;
 					bugToFadeList.push(bug);
 					deleteObj(bug, bugList);
