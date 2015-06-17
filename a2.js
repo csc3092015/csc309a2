@@ -360,30 +360,50 @@ window.onload = function() {
 			if((targetX > (this.bugX - DEFAULT_BUG_WIDTH / 2)) && ( targetX < (this.bugX + DEFAULT_BUG_WIDTH / 2))){
 				// Within X bounds 
 				bugX = targetX;
+				if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+					// Within Y bounds 
+					bugY = targetY;
+				}
+				else if(targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
+					// Top of rectangle
+					BUGY = bugY + DEFAULT_BUG_HEIGHT / 2;
+				}
+				else if(targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2)){
+					// Bottom of rectangle
+					BUGY = bugY - DEFAULT_BUG_HEIGHT / 2;
+				}
 			}
-			if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+			else if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Within Y bounds 
 				bugY = targetY;
+				if(targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)){
+					// Left of rectangle
+					bugX = bugX - DEFAULT_BUG_WIDTH / 2;
+				}
+				else if(targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)){
+					// Right of rectangle
+					bugX = bugX + DEFAULT_BUG_WIDTH / 2;
+				}
 			}
 			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Top left corner 
-				bugX = bugX - DEFAULT_BUG_WIDTH;
-				BUGY = bugY + DEFAULT_BUG_HEIGHT;
+				bugX = bugX - DEFAULT_BUG_WIDTH / 2;
+				bugY = bugY + DEFAULT_BUG_HEIGHT / 2;
 			}
 			else if((targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Top right corner 
-				bugX = bugX + DEFAULT_BUG_WIDTH;
-				BUGY = bugY + DEFAULT_BUG_HEIGHT;
+				bugX = bugX + DEFAULT_BUG_WIDTH / 2;
+				bugY = bugY + DEFAULT_BUG_HEIGHT / 2;
 			}
 			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2))){
 				// Bottom left corner 
-				bugX = bugX - DEFAULT_BUG_WIDTH;
-				BUGY = bugY - DEFAULT_BUG_HEIGHT;
+				bugX = bugX - DEFAULT_BUG_WIDTH / 2;
+				bugY = bugY - DEFAULT_BUG_HEIGHT / 2;
 			}
 			else{
 				// Bottom right corner
-				bugX = bugX + DEFAULT_BUG_WIDTH;
-				bugY = bugY - DEFAULT_BUG_HEIGHT;
+				bugX = bugX + DEFAULT_BUG_WIDTH / 2;
+				bugY = bugY - DEFAULT_BUG_HEIGHT / 2;
 			}
 			var deltaX = targetX - bugX;
 			var deltaY = targetY - bugY;
@@ -474,6 +494,7 @@ window.onload = function() {
 			for(i = bugList.length - 1; i >= 0; i--){
 				bug = bugList[i];
 				if (bug.getDistance(x, y) <= BUG_KILL_RADIUS){
+					alert(bug.getDistance(x,y));
 					score+=bug.bugScore;
 					bugToFadeList.push(bug);
 					deleteObj(bug, bugList);
