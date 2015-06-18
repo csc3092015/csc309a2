@@ -33,7 +33,8 @@ window.onload = function() {
 	var reDrawObjectsIntervalId;
 
 	// CONSTANT
-	var HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey";
+	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
+	var LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey2";
 	var DEFAULT_GAME_LENGTH_SEC = 60;
 	var DEFAULT_BUG_FADE_TIME_MILLIE = 2000;
 	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
@@ -202,12 +203,24 @@ window.onload = function() {
 		// Check browser support
 		if (typeof(Storage) != "undefined") {
 		    // Store
-		    highScore = Math.max(localStorage.getItem(HIGH_SCORE_LOCAL_STORAGE_KEY), highScore);
-		    localStorage.setItem(HIGH_SCORE_LOCAL_STORAGE_KEY, highScore);
+		    levelOneHighscore = Math.max(localStorage.getItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY), levelOneHighscore);
+		    levelTwoHighscore = Math.max(localStorage.getItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY), levelTwoHighscore);
+		    localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
+		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
 		    // Retrieve
-		    highScorePara.innerHTML = "High Score: " + localStorage.getItem(HIGH_SCORE_LOCAL_STORAGE_KEY).toString();
+		    if(level == 1){
+			    highScorePara.innerHTML = "High Score: " + localStorage.getItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY).toString();
+		    }
+		    else{
+			    highScorePara.innerHTML = "High Score: " + localStorage.getItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY).toString();
+		    }
 		} else {
-		    highScorePara.innerHTML = "High Score: " + highScore.toString();;
+			if(level == 1){
+				highScorePara.innerHTML = "High Score: " + levelOneHighscore.toString();
+			}
+			else{
+				highScorePara.innerHTML = "High Score: " + levelTwoHighscore.toString();
+			}
 		}
 		highScorePara.style.fontSize = "Medium";
 	}
