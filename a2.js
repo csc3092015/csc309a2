@@ -7,6 +7,7 @@ window.onload = function() {
 	var levelOneHighscore = 0;
 	var levelTwoHighscore = 0;
 	var score = 0;
+	var highScore = 0;
 	var levelForm = document.getElementById("levelForm");
 	var startPage = document.getElementById("startPage");
 	var levelOneButton = document.getElementById("levelOne");
@@ -32,6 +33,7 @@ window.onload = function() {
 	var reDrawObjectsIntervalId;
 
 	// CONSTANT
+	var HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey";
 	var DEFAULT_GAME_LENGTH_SEC = 60;
 	var DEFAULT_BUG_FADE_TIME_MILLIE = 2000;
 	var DEFAULT_BUG_ALPHA = 1.0; // defualt opacity is having no opacity!
@@ -43,7 +45,7 @@ window.onload = function() {
 	var DEFAULT_FOOD_WIDTH = 20;
 	var DEFAULT_FOOD_HEIGHT = 20;
 	var FOOD_SPAWN_HEIGHT = viewPortCanvas.height - 50;
-	var FOOD_TYPES = ["apple", "orange", "banana"];
+	var FOOD_TYPES = ["apple", "orange", "pear", "plum", "banana"];
 	var BUG_KILL_RADIUS = 30;
 	var BUG_SPAWN_LOWER_BOUND_MILLIE = 1000;
 	var BUG_SPAWN_UPPER_BOUND_MILLIE = 3000;
@@ -114,7 +116,6 @@ window.onload = function() {
 		gameOverPopup();
 		resetScore();
 	}
-
 
 	/**************************************************************
 	****        GENERAL HELPER		 						*******
@@ -193,10 +194,20 @@ window.onload = function() {
 	function setHighScore(){
 		getLevel();
 		if(level == 1){
-			highScorePara.innerHTML = "High Score: " + levelOneHighscore.toString();
+			highScore = levelOneHighscore;
 		}
 		else{
-			highScorePara.innerHTML = "High Score: " + levelTwoHighscore.toString();
+			highScore = levelTwoHighscore;
+		}
+		// Check browser support
+		if (typeof(Storage) != "undefined") {
+		    // Store
+		    highScore = Math.max(localStorage.getItem(HIGH_SCORE_LOCAL_STORAGE_KEY), highScore);
+		    localStorage.setItem(HIGH_SCORE_LOCAL_STORAGE_KEY, highScore);
+		    // Retrieve
+		    highScorePara.innerHTML = "High Score: " + localStorage.getItem(HIGH_SCORE_LOCAL_STORAGE_KEY).toString();
+		} else {
+		    highScorePara.innerHTML = "High Score: " + highScore.toString();;
 		}
 		highScorePara.style.fontSize = "Medium";
 	}
@@ -209,7 +220,17 @@ window.onload = function() {
 		currentScorePara.innerHTML = "Score: " + score.toString();
 	}
 	
-	
+	function shuffle(list){
+		for(var randomeIndex, sweeperIndexedElement, sweeperIndex = list.length; 
+			sweeperIndex; randomeIndex = Math.floor(Math.random() * sweeperIndex),
+			//first store sweeperIndexedElement
+			sweeperIndexedElement = list[--sweeperIndex], 
+			//put the random element into sweeper index position
+			list[sweeperIndex] = list[randomeIndex], 
+			//swap back stored element into random indexed position
+			list[randomeIndex] = sweeperIndexedElement);
+			return list;
+	}
 	/**************************************************************
 	****        TIMER FUNCTIONS       						*******
 	***************************************************************/
@@ -304,11 +325,12 @@ window.onload = function() {
 		var spacing = 
 			(viewPortCanvas.width - DEFAULT_FOOD_WIDTH * TOTAL_FOOD_NUMBER) /
 				(TOTAL_FOOD_NUMBER + 1);
+		shuffle(FOOD_TYPES);
 		for (var i = 0; i < TOTAL_FOOD_NUMBER; i++) {
 			foodX = (i + 1) * spacing + i * DEFAULT_FOOD_WIDTH;
 			/* Formula below found on http://stackoverflow.com/questions/1527803/generating-random-numbers-in-javascript-in-a-specific-range */
 			foodY = Math.random() * ((GAME_HEIGHT - DEFAULT_FOOD_HEIGHT/2) - (GAME_HEIGHT / 2 + DEFAULT_FOOD_HEIGHT/2)) + (GAME_HEIGHT / 2 + DEFAULT_FOOD_HEIGHT/2);
-			food = makeFood(foodX, foodY);
+			food = makeFood(foodX, foodY, FOOD_TYPES[i]);
 			foodList.push(food); 
 			drawFood(food);
 		};
@@ -323,17 +345,18 @@ window.onload = function() {
 	****         MAKE BUG and FOOD 					 		*******
 	***************************************************************/
 	var bugObject = function(bugX, bugY, bugType, bugSpeed, bugScore) {
-		this.bugAlpha = DEFAULT_BUG_ALPHA;
-		this.bugX = bugX;
-		this.bugY = bugY;
-		this.bugType = bugType;
-		this.bugSpeed = bugSpeed;
-		this.bugScore = bugScore;
-		this.bugClosestFood;
-		this.bugClosestFoodDistance;
-		this.bugIncrementX;
-		this.bugIncrementY;
-		this.setClosestFood = function(){
+		var self = this;
+		self.bugAlpha = DEFAULT_BUG_ALPHA;
+		self.bugX = bugX;
+		self.bugY = bugY;
+		self.bugType = bugType;
+		self.bugSpeed = bugSpeed;
+		self.bugScore = bugScore;
+		self.bugClosestFood;
+		self.bugClosestFoodDistance;
+		self.bugIncrementX;
+		self.bugIncrementY;
+		self.setClosestFood = function(){
 			var deltaX;
 			var deltaY;
 			var distance;
@@ -341,61 +364,61 @@ window.onload = function() {
 			var minDistance;
 			for (var i = 0; i < foodList.length; i++) {
 				food = foodList[i];
-				deltaX = food.foodX - this.bugX;
-				deltaY = food.foodY - this.bugY;
+				deltaX = food.foodX - self.bugX;
+				deltaY = food.foodY - self.bugY;
 				distance = Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
 				if (typeof minDistance === "undefined" || minDistance > distance) {
 					minDistance = distance;
-					this.bugClosestFoodDistance = distance;
-					this.bugClosestFood = food;
-					this.bugIncrementX = (((deltaX)/distance)*this.bugSpeed)/FRAME_RATE;
-					this.bugIncrementY = (((deltaY)/distance)*this.bugSpeed)/FRAME_RATE;
+					self.bugClosestFoodDistance = distance;
+					self.bugClosestFood = food;
+					self.bugIncrementX = (((deltaX)/distance)*self.bugSpeed)/FRAME_RATE;
+					self.bugIncrementY = (((deltaY)/distance)*self.bugSpeed)/FRAME_RATE;
 				} 
 			}
 		};
-		this.getDistance = function(targetX, targetY) {
-			var bugX = this.bugX;
-			var bugY = this.bugY;
+		self.getDistance = function(targetX, targetY) {
+			var bugX = self.bugX;
+			var bugY = self.bugY;
 			
-			if((targetX > (this.bugX - DEFAULT_BUG_WIDTH / 2)) && ( targetX < (this.bugX + DEFAULT_BUG_WIDTH / 2))){
+			if((targetX > (self.bugX - DEFAULT_BUG_WIDTH / 2)) && ( targetX < (self.bugX + DEFAULT_BUG_WIDTH / 2))){
 				// Within X bounds 
 				bugX = targetX;
-				if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+				if((targetY > (self.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (self.bugY + DEFAULT_BUG_HEIGHT / 2))){
 					// Within Y bounds 
 					bugY = targetY;
 				}
-				else if(targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2)){
+				else if(targetY > (self.bugY + DEFAULT_BUG_HEIGHT / 2)){
 					// Top of rectangle
 					bugY = bugY + DEFAULT_BUG_HEIGHT / 2;
 				}
-				else if(targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2)){
+				else if(targetY < (self.bugY - DEFAULT_BUG_HEIGHT / 2)){
 					// Bottom of rectangle
 					bugY = bugY - DEFAULT_BUG_HEIGHT / 2;
 				}
 			}
-			else if((targetY > (this.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+			else if((targetY > (self.bugY - DEFAULT_BUG_HEIGHT / 2)) && (targetY < (self.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Within Y bounds 
 				bugY = targetY;
-				if(targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)){
+				if(targetX < (self.bugX - DEFAULT_BUG_WIDTH / 2)){
 					// Left of rectangle
 					bugX = bugX - DEFAULT_BUG_WIDTH / 2;
 				}
-				else if(targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)){
+				else if(targetX > (self.bugX + DEFAULT_BUG_WIDTH / 2)){
 					// Right of rectangle
 					bugX = bugX + DEFAULT_BUG_WIDTH / 2;
 				}
 			}
-			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+			else if((targetX < (self.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY > (self.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Top left corner 
 				bugX = bugX - DEFAULT_BUG_WIDTH / 2;
 				bugY = bugY + DEFAULT_BUG_HEIGHT / 2;
 			}
-			else if((targetX > (this.bugX + DEFAULT_BUG_WIDTH / 2)) && (targetY > (this.bugY + DEFAULT_BUG_HEIGHT / 2))){
+			else if((targetX > (self.bugX + DEFAULT_BUG_WIDTH / 2)) && (targetY > (self.bugY + DEFAULT_BUG_HEIGHT / 2))){
 				// Top right corner 
 				bugX = bugX + DEFAULT_BUG_WIDTH / 2;
 				bugY = bugY + DEFAULT_BUG_HEIGHT / 2;
 			}
-			else if((targetX < (this.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY < (this.bugY - DEFAULT_BUG_HEIGHT / 2))){
+			else if((targetX < (self.bugX - DEFAULT_BUG_WIDTH / 2)) && (targetY < (self.bugY - DEFAULT_BUG_HEIGHT / 2))){
 				// Bottom left corner 
 				bugX = bugX - DEFAULT_BUG_WIDTH / 2;
 				bugY = bugY - DEFAULT_BUG_HEIGHT / 2;
@@ -409,8 +432,8 @@ window.onload = function() {
 			var deltaY = targetY - bugY;
 			return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
 		};
-		this.setBugAlpha = function(newAlpha) {
-			this.bugAlpha = newAlpha;
+		self.setBugAlpha = function(newAlpha) {
+			self.bugAlpha = newAlpha;
 		}
 	}
 
@@ -452,10 +475,9 @@ window.onload = function() {
 		return bug;
 	}
 	
-	var makeFood = function(foodX, foodY) {
-		var random = Math.floor(FOOD_TYPES.length * Math.random());
+	var makeFood = function(foodX, foodY, foodType) {
 		var food = {
-			foodType: FOOD_TYPES[random],
+			foodType: foodType,
 			foodX: foodX,
 			foodY: foodY
 		};
@@ -470,7 +492,6 @@ window.onload = function() {
 		bug.setClosestFood();
 		if(bug.bugClosestFoodDistance < OVERLAP_DISTANCE){
 			deleteObj(bug.bugClosestFood, foodList);
-			deleteObj(bug, bugList);
 		}
 		else{
 			bug.bugX += bug.bugIncrementX;
@@ -523,6 +544,12 @@ window.onload = function() {
 		else if(food.foodType=="orange"){
 			drawOrange(food);
 		}
+		else if(food.foodType=="pear"){
+			drawPear(food);
+		}
+		else if(food.foodType=="plum"){
+			drawPlum(food);
+		}
 		else if(food.foodType=="banana"){
 			drawBanana(food);
 		}	
@@ -546,7 +573,22 @@ window.onload = function() {
 		drawCircle(x, y, "orange");		
 		drawLeaves(x, y);
 		drawSmiley(x, y, 4);
-		
+	}
+
+	function drawPear(pear){
+		var x = pear.foodX;
+		var y = pear.foodY;
+		drawCircle(x, y, "White");		
+		drawLeaves(x, y);
+		drawSmiley(x, y, 4);
+	}
+
+	function drawPlum(plum){
+		var x = plum.foodX;
+		var y = plum.foodY;
+		drawCircle(x, y, "purple");		
+		drawLeaves(x, y);
+		drawSmiley(x, y, 4);
 	}
 	
 	function drawBanana(banana){
