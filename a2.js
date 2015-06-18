@@ -69,7 +69,9 @@ window.onload = function() {
         createBugs();
         reDrawObjects();
         resetTimeRemaining();
-
+		// Testing
+		testFoodEatenGameOver();
+		testTimeGoneGameOver();
 	}
 
 	function pauseUnpause(){
@@ -815,4 +817,42 @@ window.onload = function() {
 	levelOneButton.onclick = setHighScore;
 	levelTwoButton.onclick = setHighScore;
 	setHighScore();
+	
+	/**************************************************************
+	****                         TESTING				***********
+	***************************************************************/
+	
+	testFoodEatenGameOver = false;
+	testTimeGoneGameOver = true;
+	
+	// Testing Game Over
+	
+		// When food is gone
+		
+		function testFoodEatenGameOver(){
+			if(testFoodEatenGameOver){
+				foodList = [];
+				alert("Check that game over popup appears, timer stops, bugs stop moving, no more bugs are created, you cannot kill anymore bugs and you cannot press the pause button");	
+			}
+		}
+		// Game Over popup should appear after this
+		
+		// When time remaining is 0
+		function testTimeGoneGameOver(){
+			if(testTimeGoneGameOver){
+				timeRemaining = 0;	
+				alert("Check that game over popup appears, timer stops, bugs stop moving, no more bugs are created, you cannot kill anymore bugs and you cannot press the pause button");
+			}
+		}
+		
+		
+		
+	
+	
+	
+	
+	
+	
+	
+	
 }
