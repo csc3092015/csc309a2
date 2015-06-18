@@ -171,7 +171,6 @@ moves toward the next closest.
 2. Check that bugs move at the correct speed.
 - Observe that orange is slowest, red is faster, and black is fastest.
 - Observe that in level 2, bugs become faster than the speeds in level
-1.
 - Observe that bugs are moving smoothly to the eye and one cannot tell
 that it is moving at intervals.
 
