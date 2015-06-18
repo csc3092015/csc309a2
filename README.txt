@@ -9,15 +9,15 @@ seconds.
 ______________________________________________________________________
 Core Features:
 
-Bug    Points for Killing    Speed Level 1    Speed Level 2
-Probability of Appearing
-Orange 1                     60               80         0.3
-Red    3                     75               100        0.3
-Black  5                     150              200        0.4
+Bug    Points  Speed Level 1   Speed Level 2  Probability of Appearing
+Orange 1          60               80                 0.3
+Red    3          75               100                0.3
+Black  5          150              200                0.4
 
 You may pause during the game
 Timer: 60 seconds countdown
-5 Food Items randomly selected from apples, oranges, and bananas
+5 Food Items: apples, oranges, plum, pear, and bananas are randomly
+created at the bottom half of the view port
 ______________________________________________________________________
 Rules:
 
@@ -171,6 +171,7 @@ moves toward the next closest.
 2. Check that bugs move at the correct speed.
 - Observe that orange is slowest, red is faster, and black is fastest.
 - Observe that in level 2, bugs become faster than the speeds in level
+1.
 - Observe that bugs are moving smoothly to the eye and one cannot tell
 that it is moving at intervals.
 
