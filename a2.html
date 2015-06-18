@@ -17,8 +17,8 @@
 				</header>
 				<form id="levelForm">
 					<h2>Level: </h2>
-					<input type="radio" name="levelRadioButton" value="1" />1
-					<input type="radio" name="levelRadioButton" value="2" />2<br/>				
+					<input type="radio" name="levelRadioButton" value="1" id="levelOne" checked="checked" />1
+					<input type="radio" name="levelRadioButton" value="2" id="levelTwo" />2<br/>				
 				</form>
 				<button type="button" id="startButton">Start Game</button>
 				<p id="highScore"></p>
@@ -31,7 +31,7 @@
 			   			<p id="timeLeft"></p>
 			    	</div>
 			    	<div>
-				    	<div id="pauseButton" onclick="pauseUnpause()">Pause</div>
+				    	<div id="pauseButton">Pause</div>
 				    </div>
 			    	<div>
 			    		<p id="currentScore"></p>
@@ -43,7 +43,7 @@
 					</canvas>
 			    </div>
 			    <div id="gameOverPage">
-				    <p id="highScorePop"></p>
+				    <p id="scorePop"></p>
 				    <div id="restartButton">
 					    <p id="restartPara">Restart Game</p>
 					</div>
