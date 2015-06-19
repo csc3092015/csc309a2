@@ -17,13 +17,13 @@ body {
 	margin: 0 auto;
 	padding: 0;
 	text-align: center;
-	height: 250px;
+	height: 300px;
 	width: 400px;
 	display: block;
 	background-color: #ffeb90; 
 }
 
-#startButton{
+#startButton, #testButton{
 	border: 2px solid black;
 	height = 10px;
 	margin: 10px;
@@ -111,20 +111,12 @@ body {
 	  
   }
   
-  #backButton{
+  #backButton,  #restartButton{
 	  border: 1px solid black;
 	  height = 10px;
 	  margin: 10px;
 	  background-color: #e9e9e9;
   }
-  
-  #restartButton{
-	  border: 1px solid black;
-	  height = 10px;
-	  margin: 10px;
-	  background-color: #e9e9e9;
-  }
-  
   
 /******************************************************
 TESTING PAGE

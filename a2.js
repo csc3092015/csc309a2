@@ -34,6 +34,8 @@ window.onload = function() {
 	var testPop = document.getElementById("testPop");
 	var testPage = document.getElementById("testPage");
 	var levelRadioButtons = levelForm.elements["levelRadioButton"];
+	var testButton = document.getElementById("testButton");
+	var testButtonPressed = false;
 
 	// CONSTANT
 	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
@@ -71,7 +73,7 @@ window.onload = function() {
         createFoods();
         createBugs();
         reDrawObjects();
-        resetTimeRemaining();
+        // resetTimeRemaining();
 	}
 
 	function pauseUnpause(){
@@ -238,6 +240,12 @@ window.onload = function() {
 			//swap back stored element into random indexed position
 			list[randomeIndex] = sweeperIndexedElement);
 			return list;
+	}
+
+
+	function getFunctionName() {
+		/*http://www.esqsoft.com/javascript/functions/how-to-get-function-name-from-itself.htm*/
+		return arguments.callee.caller.toString().match(/function ([^\(]+)/)[1];
 	}
 	/**************************************************************
 	****        TIMER FUNCTIONS       						*******
@@ -822,7 +830,25 @@ window.onload = function() {
 			var newParaTag = document.createElement("p");
 			var newText = document.createTextNode("Test Log");
 			newParaTag.appendChild(newText);
-			testPop.appendChild(newParaTag);	
+			testPop.appendChild(newParaTag);
+		}
+
+		function testButtonToggle(){
+			testPopClear();
+			if(!testButtonPressed){
+				testButtonPressed = true;
+				startTest();
+			}
+			else {
+				testButtonPressed = false;
+				testPage.style.display = "none";
+			}
+		}
+
+		function testPopClear() {
+			while(testPop.lastChild){
+				testPop.removeChild(testPop.lastChild);
+			}
 		}
 		
 		function takeDown(){
@@ -844,7 +870,7 @@ window.onload = function() {
 		function testFoodEatenGameOver(){
 			startGame();
 			foodList = [];
-			assert("testFoodEatenGameOver", isGameOver() == true);
+			assert(getFunctionName(), isGameOver() == true);
 			endGame();
 		}
 		// Game Over popup should appear after this
@@ -853,7 +879,7 @@ window.onload = function() {
 		function testTimeGoneGameOver(){
 			startGame();
 			timeRemaining = 0;	
-			assert("testTimeGoneGameOver", isGameOver() == true);
+			assert(getFunctionName(), isGameOver() == true);
 			endGame();
 		}
 		
@@ -881,7 +907,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			var highScoreText = highScorePara.innerHTML;
-			assert("testHighScoreValueLevel1", "High Score: 100" == highScoreText);
+			assert(getFunctionName(), "High Score: 100" == highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -897,7 +923,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			var highScoreText = highScorePara.innerHTML;
-			assert("testHighScoreValueLevel2", "High Score: 200" == highScoreText);
+			assert(getFunctionName(), "High Score: 200" == highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -919,7 +945,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			highScoreText = highScorePara.innerHTML;
-			assert("testLowerScoreHighScoreHasNotChangedLevel1", "High Score: 400" == highScoreText);
+			assert(getFunctionName(), "High Score: 400" == highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -941,22 +967,50 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			highScoreText = highScorePara.innerHTML;
-			assert("testLowerScoreHighScoreHasNotChangedLevel2", "High Score: 300" == highScoreText);
+			assert(getFunctionName(), "High Score: 300" == highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
+
+		function testPauseButtonDoesFreezeBugAndTimer(){
+			// Click pause button to see if all bugs have stopped.
+			// Check to see that the timer has stopped.
+			levelRadioButtons[0].checked = false;
+			levelRadioButtons[1].checked = true;
+			startGame();
+			setTimeout(
+				function() {
+					pauseUnpause();
+					var sampleBug = bugList[0];
+					var sampleBugInitalX = sampleBug.bugX;
+					var sampleBugInitalY = sampleBug.bugY;
+					var initialTimeRemaining = timeRemaining;
+					setTimeout(function(){
+						var freezeBug = (sampleBugInitalX === sampleBug.bugX) && (sampleBugInitalY === sampleBug.bugY);
+						assert("testPauseButtonDoesFreezeBug", freezeBug);
+						var freezeTime = (initialTimeRemaining === timeRemaining);
+						assert("testPauseButtonDoesFreezeTime", "timeRemaining: " + timeRemaining + " initial: " + initialTimeRemaining);
+					}, (1000/FRAME_RATE)*3);
+					endGame();
+				}
+				, 1000*3);
+		}
+
+		function startTest() {
+			setup();
+			testFoodEatenGameOver();
+			testTimeGoneGameOver();
+			testInitialHighScoreValue();	
+			testHighScoreValueLevel1();
+			testHighScoreValueLevel2();
+			testLowerScoreHighScoreHasNotChangedLevel1();
+			testLowerScoreHighScoreHasNotChangedLevel2();
+			testPauseButtonDoesFreezeBugAndTimer();
+			takeDown();	
+		}
 		
-		setup();
-		testFoodEatenGameOver();
-		testTimeGoneGameOver();
-		testInitialHighScoreValue();	
-		testHighScoreValueLevel1();
-		testHighScoreValueLevel2();
-		testLowerScoreHighScoreHasNotChangedLevel1();
-		testLowerScoreHighScoreHasNotChangedLevel2();
-		takeDown();	
-	
+		testButtonToggle();
 	}	
 	
-	testGame();
+	testButton.onclick = testGame;
 }
