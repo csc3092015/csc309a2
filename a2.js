@@ -1258,9 +1258,45 @@ window.onload = function() {
 						endGame();
 					}
 				}
-				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+			, BUG_SPAWN_UPPER_BOUND_MILLIE);
 
 		}
+		
+		function testBugsMoveAtRightSpeed(){
+			startGame();
+			setTimeout(
+				function(){
+					var pass = true;
+					for(i = 0; i < bugList.length; i++){
+						alert("bugType: " + bugList[i].bugType + " bugSpeed" + bugList[i].bugSpeed);
+						if(bugList[i].bugType === "red"){
+							if (level === 1) {
+								pass = pass && (bugList[i].bugSpeed === 75);
+							} else {
+								pass = pass && (bugList[i].bugSpeed === 100);
+							}
+						}
+						else if(bugList[i].bugType === "black"){
+							if (level === 1) {
+								pass = pass && (bugList[i].bugSpeed === 150);
+							} else {
+								pass = pass && (bugList[i].bugSpeed === 200);
+							}
+						}
+						else{
+							if (level === 1) {
+								pass = pass && (bugList[i].bugSpeed === 60);
+							} else {
+								pass = pass && (bugList[i].bugSpeed === 80);
+							}
+						}
+					}
+					assert("testBugsMoveAtRightSpeed", pass === true);
+					endGame();
+				}
+			, 4000);
+		}
+		sequentialTestCallList.push(testBugsMoveAtRightSpeed);
 
 	// Game Over Integrity	
 		function testTimerStopsAtGameOver(){
