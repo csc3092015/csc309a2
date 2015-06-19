@@ -852,6 +852,13 @@ window.onload = function() {
 		}
 		
 		function takeDown(){
+			highScore = 0;
+			levelOneHighscore = 0;
+			levelTwoHighscore = 0;
+			localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
+		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
+			levelRadioButtons[0].checked = true;
+			levelRadioButtons[1].checked = false;
 			localStorage.clear();
 			
 		}
@@ -938,13 +945,12 @@ window.onload = function() {
 			getLevel();
 			calculateHighScore();
 			setHighScore();
-			var highScoreText = highScorePara.innerHTML;
-
 			score = 100;
+			
 			getLevel();
 			calculateHighScore();
 			setHighScore();
-			highScoreText = highScorePara.innerHTML;
+			var highScoreText = highScorePara.innerHTML;
 			assert(getFunctionName(), "High Score: 400" == highScoreText);
 			localStorage.clear();
 			resetScore();
@@ -960,13 +966,13 @@ window.onload = function() {
 			getLevel();
 			calculateHighScore();
 			setHighScore();
-			var highScoreText = highScorePara.innerHTML;
 
 			score = 100;
 			getLevel();
 			calculateHighScore();
 			setHighScore();
-			highScoreText = highScorePara.innerHTML;
+			alert(level);
+			var highScoreText = highScorePara.innerHTML;
 			assert(getFunctionName(), "High Score: 300" == highScoreText);
 			localStorage.clear();
 			resetScore();
