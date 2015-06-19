@@ -68,12 +68,12 @@ window.onload = function() {
 		gameOverPage.style.display = 'none';
 		dropAll();
 		upDateVisualScore();
+		resetTimeRemaining();
 		updateStartTime();
 		updateVisualTimeRemaining();
         createFoods();
         createBugs();
         reDrawObjects();
-        // resetTimeRemaining();
 	}
 
 	function pauseUnpause(){
@@ -325,7 +325,6 @@ window.onload = function() {
 		lastTimeBugSpawnedInMillie = lastTimeBugSpawnedInMillie || startTime	
 		var timeElapsedSinceLastBugSpawned = 
 		new Date().getTime() - lastTimeBugSpawnedInMillie;
-		// alert(timeElapsedSinceLastBugSpawned);
 		return interval - timeElapsedSinceLastBugSpawned;
 	}
 	
@@ -1005,9 +1004,10 @@ window.onload = function() {
 						var freezeBug = (sampleBugInitalX === sampleBug.bugX) && (sampleBugInitalY === sampleBug.bugY);
 						assert("testPauseButtonDoesFreezeBug", freezeBug);
 						var freezeTime = (initialTimeRemaining === timeRemaining);
-						assert("testPauseButtonDoesFreezeTime", "timeRemaining: " + timeRemaining + " initial: " + initialTimeRemaining);
+						assert("testPauseButtonDoesFreezeTime", freezeTime);
+						pauseUnpause();
+						endGame();
 					}, (1000/FRAME_RATE)*3);
-					endGame();
 				}
 				, 1000*3);
 		}
