@@ -825,6 +825,9 @@ window.onload = function() {
 	
 	function testGame(){
 		function setup(){
+			highScore = 0;
+			levelOneHighscore = 0;
+			levelTwoHighscore = 0;
 			testPage.style.display = "block";
 			localStorage.clear();
 			var newParaTag = document.createElement("p");
