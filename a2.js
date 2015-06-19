@@ -815,7 +815,7 @@ window.onload = function() {
 		viewPortContext.strokeStyle = "black";
 		viewPortContext.stroke();
 	}
-
+	
 	startButton.onclick = startBackButtonOnclick;
 	backButton.onclick = startBackButtonOnclick;
 	restartButton.onclick = startGame;
@@ -839,6 +839,7 @@ window.onload = function() {
 			testing = true;
 			saveAllScores();
 			resetAllScores();
+			startPage.style.display = "none";
 			testPage.style.display = "block";
 			localStorage.clear();
 			var newParaTag = document.createElement("h1");
@@ -919,7 +920,7 @@ window.onload = function() {
 		function testFoodEatenGameOver(){
 			startGame();
 			foodList = [];
-			assert(getFunctionName(), isGameOver() == true);
+			assert(getFunctionName(), isGameOver() === true);
 			endGame();
 		}
 		// Game Over popup should appear after this
@@ -928,7 +929,7 @@ window.onload = function() {
 		function testTimeGoneGameOver(){
 			startGame();
 			timeRemaining = 0;	
-			assert(getFunctionName(), isGameOver() == true);
+			assert(getFunctionName(), isGameOver() === true);
 			endGame();
 		}
 		
@@ -938,9 +939,9 @@ window.onload = function() {
 		function testInitialHighScoreValue(){
 			localStorage.clear();
 			resetScore();
-			assert("testInitialHighScoreValue-highScore", highScore == 0);
-			assert("testInitialHighScoreValue-LevelOneHighScore", levelOneHighscore == 0);
-			assert("testInitialHighScoreValue-LevelTwoHighScore", levelTwoHighscore == 0);
+			assert("testInitialHighScoreValue-highScore", highScore === 0);
+			assert("testInitialHighScoreValue-LevelOneHighScore", levelOneHighscore === 0);
+			assert("testInitialHighScoreValue-LevelTwoHighScore", levelTwoHighscore === 0);
 			localStorage.clear();
 			resetScore();
 		}
@@ -956,7 +957,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			var highScoreText = highScorePara.innerHTML;
-			assert(getFunctionName(), "High Score: 100" == highScoreText);
+			assert(getFunctionName(), "High Score: 100" === highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -972,7 +973,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			var highScoreText = highScorePara.innerHTML;
-			assert(getFunctionName(), "High Score: 200" == highScoreText);
+			assert(getFunctionName(), "High Score: 200" === highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -993,7 +994,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			var highScoreText = highScorePara.innerHTML;
-			assert(getFunctionName(), "High Score: 400" == highScoreText);
+			assert(getFunctionName(), "High Score: 400" === highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -1014,7 +1015,7 @@ window.onload = function() {
 			calculateHighScore();
 			setHighScore();
 			var highScoreText = highScorePara.innerHTML;
-			assert(getFunctionName(), "High Score: 300" == highScoreText);
+			assert(getFunctionName(), "High Score: 300" === highScoreText);
 			localStorage.clear();
 			resetScore();
 		}
@@ -1145,7 +1146,24 @@ window.onload = function() {
 				}
 			, 2000);
 		}
-
+		
+	// Game Over Integrity	
+		function testTimerStopsAtGameOver(){
+			startGame();
+			window.clearInterval(createBugsIntervalId);
+			endGame();
+			var now = new Date().getTime();
+			var later;
+			setTimeout(
+				function(){
+					later = new Date().getTime();
+					assert("testTimerStopsAtGameOver", now === later);
+				}
+			, 3000);	
+		}
+		
+		
+		
 		function startTest() {
 			setup();
 			testFoodEatenGameOver();
@@ -1160,13 +1178,12 @@ window.onload = function() {
 
   			We need to run the following tests in the following order*/
   			
-  			testPauseButtonDoesFreezeBugAndTimer();
-			setTimeout(testPauseButtonRapidPressStillSpawnBug, BASE_TESTING_TIME);
-			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, BASE_TESTING_TIME*2);
-			setTimeout(testTimerDecrements, BASE_TESTING_TIME*3);
-			setTimeout(testTimerStopsAtZero, BASE_TESTING_TIME*4);	
-			setTimeout(takeDown, BASE_TESTING_TIME*5);
-			setTimeout(reloadPage, BASE_TESTING_TIME*6);
+  			var listTests = [testPauseButtonDoesFreezeBugAndTimer, testPauseButtonRapidPressStillSpawnBug, testUnPauseButtonDoesFreeBugAndTimer, testTimerDecrements, testTimerStopsAtZero, testTimerStopsAtGameOver, takeDown, reloadPage];
+  			
+  			for(i = 0; i < listTests.length; i++){
+	  			setTimeout(listTests[i], BASE_TESTING_TIME*i);
+  			}
+  			
 		}
 		
 		testButtonToggle();
