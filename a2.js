@@ -831,10 +831,13 @@ window.onload = function() {
 	
 	function testGame(){
 		var BASE_TESTING_TIME = 5000;
-
+		var saveHighScore;
+		var saveLevelOneHighscore;
+		var saveLevelTwoHighscore;
 
 		function setup(){
 			testing = true;
+			saveAllScores();
 			resetAllScores();
 			testPage.style.display = "block";
 			localStorage.clear();
@@ -867,7 +870,8 @@ window.onload = function() {
 			resetRadioButtons();
 			localStorage.clear();
 			testing = false;
-			
+			assert("Testing Done", true);
+			loadAllScores();
 		}
 		
 		function assert(testName, bool){
@@ -888,6 +892,24 @@ window.onload = function() {
 			levelTwoHighscore = 0;
 			localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
 		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
+		}
+		
+		function saveAllScores(){
+			saveHighScore = highScore;
+			saveLevelOneHighscore = levelOneHighscore;
+			saveLevelTwoHighscore = levelTwoHighscore;
+		}
+		
+		function loadAllScores(){
+			highScore = saveHighScore;
+			levelOneHighscore = saveLevelOneHighscore;
+			levelTwoHighscore = saveLevelTwoHighscore;
+			localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
+		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
+		}
+		
+		function reloadPage(){
+			location.reload();
 		}
 		
 	// Testing Game Over
@@ -1137,14 +1159,14 @@ window.onload = function() {
   			/*Since testing pause involves on set time out and set interval
 
   			We need to run the following tests in the following order*/
+  			
   			testPauseButtonDoesFreezeBugAndTimer();
 			setTimeout(testPauseButtonRapidPressStillSpawnBug, BASE_TESTING_TIME);
 			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, BASE_TESTING_TIME*2);
 			setTimeout(testTimerDecrements, BASE_TESTING_TIME*3);
-			setTimeout(testTimerStopsAtZero, BASE_TESTING_TIME*4);
-			
-			
+			setTimeout(testTimerStopsAtZero, BASE_TESTING_TIME*4);	
 			setTimeout(takeDown, BASE_TESTING_TIME*5);
+			setTimeout(reloadPage, BASE_TESTING_TIME*6);
 		}
 		
 		testButtonToggle();
