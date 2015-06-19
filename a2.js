@@ -66,6 +66,9 @@ window.onload = function() {
 	***************************************************************/
 	function startGame() {
 		gameOverPage.style.display = 'none';
+		if(gamePage.style.display === "block"){
+			testPage.style.display = "none";
+		}
 		dropAll();
 		upDateVisualScore();
 		resetTimeRemaining();
@@ -824,9 +827,7 @@ window.onload = function() {
 	
 	function testGame(){
 		function setup(){
-			highScore = 0;
-			levelOneHighscore = 0;
-			levelTwoHighscore = 0;
+			resetAllScores();
 			testPage.style.display = "block";
 			localStorage.clear();
 			var newParaTag = document.createElement("h1");
@@ -1011,6 +1012,22 @@ window.onload = function() {
 				}
 				, 1000*3);
 		}
+		
+		function testTimerDecrements(){
+			startGame();
+			window.clearInterval(createBugsIntervalId);
+			var currentTime = new Date().getTime();
+			var randomInt = Math.floor(3 + 8*Math.random());
+			setTimeout(
+				function(){
+					var timeRemainingNow = timeRemaining;
+					var newTime = new Date().getTime();
+					var timeLeft = 60 - ((newTime - currentTime) / 1000)
+					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
+					endGame();
+				}
+			,1000*randomInt);
+		}
 
 		function startTest() {
 			setup();
@@ -1021,7 +1038,8 @@ window.onload = function() {
 			testHighScoreValueLevel2();
 			testLowerScoreHighScoreHasNotChangedLevel1();
 			testLowerScoreHighScoreHasNotChangedLevel2();
-			testPauseButtonDoesFreezeBugAndTimer();
+			//testPauseButtonDoesFreezeBugAndTimer();
+			testTimerDecrements();
 			takeDown();	
 		}
 		
