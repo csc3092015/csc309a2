@@ -252,6 +252,11 @@ window.onload = function() {
 			return list;
 	}
 
+	function getDistance(x1, y1, x2, y2){
+		deltaX = x1 - x2;
+		deltaY = y1 - y2;
+		return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
+	}
 
 	function getFunctionName() {
 		/*http://www.esqsoft.com/javascript/functions/how-to-get-function-name-from-itself.htm*/
@@ -895,14 +900,27 @@ window.onload = function() {
 			var newText = document.createTextNode(testName + ": " + bool.toString());
 			newParaTag.appendChild(newText);
 			if(bool || testName === "Tests Succeeded"){
-				newParaTag.id = "pass";	
+				newParaTag.classList.add("pass");
 				numPass++;
 			}
 			else{
-				newParaTag.id = "fail";
+				newParaTag.classList.add("fail");
 				numFail++;
 			}
 			testPop.appendChild(newParaTag);
+		}
+
+		function setRadioButtonsAlternate(){
+			/* 
+			For level independent tests, it is kind of redundant to do each test for 
+			each level. So we alternate level for each test.
+			*/
+			if (levelRadioButtons[0].checked === levelRadioButtons[1].checked){
+				resetRadioButtons();
+			} else {
+				levelRadioButtons[0].checked != levelRadioButtons[0].checked;
+				levelRadioButtons[1].checked != levelRadioButtons[1].checked;
+			}
 		}
 		
 		function resetRadioButtons(){
@@ -1047,7 +1065,153 @@ window.onload = function() {
 			resetScore();
 		}
 
+		function testPauseButtonDoesFreezeBugAndTimer(){
+			// Click pause button to see if all bugs have stopped.
+			// Check to see that the timer has stopped.
+			setRadioButtonsAlternate();
+			startGame();
+			var freezeBug = false;
+			var freezeTime = false;
+			setTimeout(
+				function() {
+					if(bugList.length === 0) {
+						assert("testPauseButtonDoesFreezeBug", freezeBug);
+						assert("testPauseButtonDoesFreezeTime", freezeTime);
+						endGame();
+						return;
+					}
+					pauseUnpause();
+					var sampleBug = bugList[0];
+					var sampleBugInitalX = sampleBug.bugX;
+					var sampleBugInitalY = sampleBug.bugY;
+					var initialTimeRemaining = timeRemaining;
+					setTimeout(function(){
+						freezeBug = (sampleBugInitalX === sampleBug.bugX) && (sampleBugInitalY === sampleBug.bugY);
+						assert("testPauseButtonDoesFreezeBug", freezeBug);
+						freezeTime = (initialTimeRemaining === timeRemaining);
+						assert("testPauseButtonDoesFreezeTime", freezeTime);
+						pauseUnpause();
+						endGame();
+					}, (1000/FRAME_RATE)*3);
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+		}
+		sequentialTestCallList.push(testPauseButtonDoesFreezeBugAndTimer);
+		
+
+
+		function testPauseButtonRapidPressStillSpawnBug(){
+			// 	Rapidly pausing and resuming the game. If 3 seconds of game time
+  			// has passed, check if there is at least one more bug appearing
+  			setRadioButtonsAlternate();
+  			startGame();
+  			var initialTime = new Date().getTime();
+  			var timePressedPersecond = 10;
+  			var oddPausedTime = false;
+  			var pauseToggleDurationUpperBoundMillie = 100;
+  			var upperBound = BUG_SPAWN_UPPER_BOUND_MILLIE + pauseToggleDurationUpperBoundMillie;
+  			var stillSpawnBug = false;
+  			var rapidPressIntervalId = setInterval(
+  				function (){
+  					pauseUnpause();
+  					oddPausedTime = !oddPausedTime;
+  					if(bugList.length > 0) {
+  						var findBugTime = new Date().getTime();
+  						var bugSpawnTime = findBugTime - initialTime;
+  						stillSpawnBug = (bugSpawnTime < (upperBound));
+  						assert("testPauseButtonRapidPressStillSpawnBug", stillSpawnBug);
+  						if(oddPausedTime){
+							// although it works even we endGame when paused, but 
+							pauseUnpause();
+						}
+						endGame();
+						window.clearInterval(rapidPressIntervalId);
+					} else if((new Date().getTime() - initialTime) > upperBound) {
+						assert("testPauseButtonRapidPressStillSpawnBug", stillSpawnBug);
+						if(oddPausedTime){
+							// although it works even we endGame when paused, but 
+							pauseUnpause();
+						}
+						endGame();
+						window.clearInterval(rapidPressIntervalId);
+					}
+				}
+				, 1000/timePressedPersecond);
+  		}
+  		sequentialTestCallList.push(testPauseButtonRapidPressStillSpawnBug);
+
+  		function testPauseedCantKillBug(){
+  			setRadioButtonsAlternate();
+			startGame();
+			pauseUnpause();
+			var initialBugListLength = bugList.length;
+			//kill all the bugs
+			for (var i = bugList.length - 1; i >= 0; i--) {
+				var clientX = bugList[i].bugX + viewPortCanvas.offsetLeft;
+				var clientY = bugList[i].bugY + viewPortCanvas.offsetTop;
+				var evt = document.createEvent("MouseEvents");
+				evt.initMouseEvent("click", true, true, window,
+					0, 0, 0, clientX, clientY, false, false, false, false, 0, null);
+				document.body.dispatchEvent(evt);
+			};
+			var didntKill = (initialBugListLength === bugList.length);
+			assert(getFunctionName(), didntKill);
+			pauseUnpause();
+			endGame();
+  		}
+  		sequentialTestCallList.push(testPauseedCantKillBug);
+
+  		function testUnPauseButtonDoesFreeBugAndTimer(){
+			// Click pause button to see if all bugs have stopped.
+			// Check to see that the timer has stopped.
+			setRadioButtonsAlternate();
+			startGame();
+			var freeBug = false;
+			var freeTime = false;
+			setTimeout(
+				function() {
+					if(bugList.length === 0) {
+						assert("testUnPauseButtonDoesFreeBug", freeBug);
+						assert("testUnPauseButtonDoesFreeTime", freeTime);
+						endGame();
+						return;
+					}
+					pauseUnpause();
+					var sampleBug = bugList[0];
+					var sampleBugInitalX = sampleBug.bugX;
+					var sampleBugInitalY = sampleBug.bugY;
+					var initialTimeRemaining = timeRemaining;
+					pauseUnpause();
+					setTimeout(function(){
+						freeBug = (sampleBugInitalX !== sampleBug.bugX) && (sampleBugInitalY !== sampleBug.bugY);
+						assert("testUnPauseButtonDoesFreeBug", freeBug);
+						freeTime = (initialTimeRemaining !== timeRemaining);
+						assert("testUnPauseButtonDoesFreeTime", freeTime);
+						endGame();
+					}, (1000/FRAME_RATE)*3);
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+		}
+		sequentialTestCallList.push(testUnPauseButtonDoesFreeBugAndTimer);
+
+		function testUnPauseButtonDoesSpawnNewBug(){
+			// Check that new bugs are being created by waiting at least 3 seconds.
+			setRadioButtonsAlternate();
+			startGame();
+			pauseUnpause();
+			pauseUnpause();
+			var spawnNewbug = false;
+			setTimeout(
+				function(){
+					spawnNewbug = (bugList.length > 0);
+					assert("testUnPauseButtonDoesSpawnNewBug", spawnNewbug);
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+		}
+		sequentialTestCallList.push(testUnPauseButtonDoesSpawnNewBug);
+		
 		function testTimerDecrements(){
+			setRadioButtonsAlternate();
 			startGame();
 			window.clearInterval(createBugsIntervalId);
 			var currentTime = new Date().getTime();
@@ -1063,94 +1227,9 @@ window.onload = function() {
 		}
 		sequentialTestCallList.push(testTimerDecrements);
 
-		function testPauseButtonDoesFreezeBugAndTimer(){
-			// Click pause button to see if all bugs have stopped.
-			// Check to see that the timer has stopped.
-			levelRadioButtons[0].checked = false;
-			levelRadioButtons[1].checked = true;
-			startGame();
-			setTimeout(
-				function() {
-					pauseUnpause();
-					var sampleBug = bugList[0];
-					var sampleBugInitalX = sampleBug.bugX;
-					var sampleBugInitalY = sampleBug.bugY;
-					var initialTimeRemaining = timeRemaining;
-					setTimeout(function(){
-						var freezeBug = (sampleBugInitalX === sampleBug.bugX) && (sampleBugInitalY === sampleBug.bugY);
-						assert("testPauseButtonDoesFreezeBug", freezeBug);
-						var freezeTime = (initialTimeRemaining === timeRemaining);
-						assert("testPauseButtonDoesFreezeTime", freezeTime);
-						pauseUnpause();
-						endGame();
-					}, (1000/FRAME_RATE)*3);
-				}
-				, BUG_SPAWN_UPPER_BOUND_MILLIE);
-		}
-		sequentialTestCallList.push(testPauseButtonDoesFreezeBugAndTimer);
-		
-
-
-		function testPauseButtonRapidPressStillSpawnBug(){
-			// 	Rapidly pausing and resuming the game. If 3 seconds of game time
-  			// has passed, check if there is at least one more bug appearing
-  			levelRadioButtons[0].checked = false;
-  			levelRadioButtons[1].checked = true;
-  			startGame();
-  			var initialTime = new Date().getTime();
-  			var timePressedPersecond = 10;
-  			var oddPausedTime = false;
-  			var rapidPressIntervalId = setInterval(
-  				function (){
-  					pauseUnpause();
-  					oddPausedTime = !oddPausedTime;
-  					if(bugList.length > 0) {
-  						var findBugTime = new Date().getTime();
-  						var bugSpawnTime = findBugTime - initialTime;
-  						var pauseToggleDurationUpperBoundMillie = 100;
-  						var stillSpawnBug = (bugSpawnTime < (BUG_SPAWN_UPPER_BOUND_MILLIE + pauseToggleDurationUpperBoundMillie));
-  						assert("testPauseButtonRapidPressStillSpawnBug", stillSpawnBug);
-  						if(oddPausedTime){
-							// although it works even we endGame when paused, but 
-							pauseUnpause();
-						}
-						endGame();
-						window.clearInterval(rapidPressIntervalId);
-					}
-				}
-				, 1000/timePressedPersecond);
-  		}
-  		sequentialTestCallList.push(testPauseButtonRapidPressStillSpawnBug);
-
-  		function testUnPauseButtonDoesFreeBugAndTimer(){
-			// Click pause button to see if all bugs have stopped.
-			// Check to see that the timer has stopped.
-			levelRadioButtons[0].checked = false;
-			levelRadioButtons[1].checked = true;
-			startGame();
-			setTimeout(
-				function() {
-					pauseUnpause();
-					var sampleBug = bugList[0];
-					var sampleBugInitalX = sampleBug.bugX;
-					var sampleBugInitalY = sampleBug.bugY;
-					var initialTimeRemaining = timeRemaining;
-					pauseUnpause();
-					setTimeout(function(){
-						var freeBug = (sampleBugInitalX !== sampleBug.bugX) && (sampleBugInitalY !== sampleBug.bugY);
-						assert("testUnPauseButtonDoesFreeBug", freeBug);
-						var freeTime = (initialTimeRemaining !== timeRemaining);
-						assert("testUnPauseButtonDoesFreeTime", freeTime);
-						pauseUnpause();
-						endGame();
-					}, (1000/FRAME_RATE)*3);
-				}
-				, BUG_SPAWN_UPPER_BOUND_MILLIE);
-		}
-		sequentialTestCallList.push(testUnPauseButtonDoesFreeBugAndTimer);
-		
 		function testTimerStopsAtZero(){
 			testingTimerStopsAtZero = true;
+			setRadioButtonsAlternate();
 			startGame();
 			window.clearInterval(createBugsIntervalId);
 			timeRemaining = 0;
@@ -1163,9 +1242,29 @@ window.onload = function() {
 			, 2000);
 		}
 		sequentialTestCallList.push(testTimerStopsAtZero);
-		
+	
+	// Bug and Food Behavior
+		function testBugTargetRightFood(){
+			setRadioButtonsAlternate();
+			startGame();
+			var correctlyTarget = false;
+			setTimeout(
+				function(){
+					if(bugList.length > 0){
+						var foodTarget = bugList[0].bugFoodTarget;
+
+					} else {
+						assert("testBugTargetRightFood", correctlyTarget);
+						endGame();
+					}
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+
+		}
+
 	// Game Over Integrity	
 		function testTimerStopsAtGameOver(){
+			setRadioButtonsAlternate();
 			startGame();
 			window.clearInterval(createBugsIntervalId);
 			endGame();
@@ -1181,6 +1280,7 @@ window.onload = function() {
 		sequentialTestCallList.push(testTimerStopsAtGameOver);
 		
 		function testBugsStopBeingCreatedAtGameOver(){
+			setRadioButtonsAlternate();
 			startGame();
 			setTimeout(pauseUnpause, 4000);
 			endGame();

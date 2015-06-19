@@ -139,11 +139,11 @@ TESTING PAGE
 	border-radius: 8px;
 }
 
-#pass{
+.pass{
 	color: #1bf11b;
 }
 
-#fail{
+.fail{
 	color: red;
 }
 
