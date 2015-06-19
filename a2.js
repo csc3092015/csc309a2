@@ -31,7 +31,6 @@ window.onload = function() {
 	var bugToFadeList = [];
 	var createBugsIntervalId;
 	var reDrawObjectsIntervalId;
-	var testLog = document.getElementById("testLog");
 	var testPop = document.getElementById("testPop");
 	var testPage = document.getElementById("testPage");
 	var levelRadioButtons = levelForm.elements["levelRadioButton"];
