@@ -36,6 +36,8 @@ window.onload = function() {
 	var levelRadioButtons = levelForm.elements["levelRadioButton"];
 	var testButton = document.getElementById("testButton");
 	var testButtonPressed = false;
+	var testing = false;
+	var testingTimerStopsAtZero = false;
 
 	// CONSTANT
 	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
@@ -122,7 +124,9 @@ window.onload = function() {
 		getLevel();
 		calculateHighScore();
 		setHighScore();
-		resetTimeRemaining();
+		if(!testingTimerStopsAtZero){
+			resetTimeRemaining();	
+		}
 		gameOverPopup();
 		resetScore();
 	}
@@ -830,6 +834,7 @@ window.onload = function() {
 
 
 		function setup(){
+			testing = true;
 			resetAllScores();
 			testPage.style.display = "block";
 			localStorage.clear();
@@ -861,6 +866,7 @@ window.onload = function() {
 			resetAllScores();
 			resetRadioButtons();
 			localStorage.clear();
+			testing = false;
 			
 		}
 		
@@ -1093,7 +1099,6 @@ window.onload = function() {
 			startGame();
 			window.clearInterval(createBugsIntervalId);
 			var currentTime = new Date().getTime();
-			var randomInt = Math.floor(3 + 8*Math.random());
 			setTimeout(
 				function(){
 					var timeRemainingNow = timeRemaining;
@@ -1102,7 +1107,21 @@ window.onload = function() {
 					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
 					endGame();
 				}
-				,1000*randomInt);
+				, 3000);
+		}
+		
+		function testTimerStopsAtZero(){
+			testingTimerStopsAtZero = true;
+			startGame();
+			window.clearInterval(createBugsIntervalId);
+			timeRemaining = 0;
+			setTimeout(
+				function(){
+					assert("testTimerStopsAtZero", timeRemaining === 0);	
+					endGame();
+					testingTimerStopsAtZero = false;
+				}
+			, 2000);
 		}
 
 		function startTest() {
@@ -1122,7 +1141,10 @@ window.onload = function() {
 			setTimeout(testPauseButtonRapidPressStillSpawnBug, BASE_TESTING_TIME);
 			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, BASE_TESTING_TIME*2);
 			setTimeout(testTimerDecrements, BASE_TESTING_TIME*3);
-			takeDown();	
+			setTimeout(testTimerStopsAtZero, BASE_TESTING_TIME*4);
+			
+			
+			setTimeout(takeDown, BASE_TESTING_TIME*5);
 		}
 		
 		testButtonToggle();
