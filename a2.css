@@ -124,8 +124,12 @@ TESTING PAGE
 	
 #testPage{
 	display: none;
+	border: 3px solid black;
+	margin: 10px auto;
+	padding: 0 auto;
+	text-align: center;
+	width: 400px;
 }
-
   
 
 

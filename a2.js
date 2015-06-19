@@ -66,6 +66,9 @@ window.onload = function() {
 	***************************************************************/
 	function startGame() {
 		gameOverPage.style.display = 'none';
+		if(gamePage.style.display === "block"){
+			testPage.style.display = "none";
+		}
 		dropAll();
 		upDateVisualScore();
 		resetTimeRemaining();
@@ -1064,6 +1067,22 @@ window.onload = function() {
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
 
+		function testTimerDecrements(){
+			startGame();
+			window.clearInterval(createBugsIntervalId);
+			var currentTime = new Date().getTime();
+			var randomInt = Math.floor(3 + 8*Math.random());
+			setTimeout(
+				function(){
+					var timeRemainingNow = timeRemaining;
+					var newTime = new Date().getTime();
+					var timeLeft = 60 - ((newTime - currentTime) / 1000)
+					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
+					endGame();
+				}
+				,1000*randomInt);
+		}
+
 		function startTest() {
 			setup();
 			testFoodEatenGameOver();
@@ -1079,6 +1098,7 @@ window.onload = function() {
   			testPauseButtonDoesFreezeBugAndTimer();
 			setTimeout(testPauseButtonRapidPressStillSpawnBug, BASE_TESTING_TIME);
 			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, BASE_TESTING_TIME*2);
+			setTimeout(testTimerDecrements, BASE_TESTING_TIME*3);
 			takeDown();	
 		}
 		
