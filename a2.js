@@ -830,12 +830,10 @@ window.onload = function() {
 
 
 		function setup(){
-			highScore = 0;
-			levelOneHighscore = 0;
-			levelTwoHighscore = 0;
+			resetAllScores();
 			testPage.style.display = "block";
 			localStorage.clear();
-			var newParaTag = document.createElement("p");
+			var newParaTag = document.createElement("h1");
 			var newText = document.createTextNode("Test Log");
 			newParaTag.appendChild(newText);
 			testPop.appendChild(newParaTag);
@@ -860,13 +858,8 @@ window.onload = function() {
 		}
 		
 		function takeDown(){
-			highScore = 0;
-			levelOneHighscore = 0;
-			levelTwoHighscore = 0;
-			localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
-		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
-			levelRadioButtons[0].checked = true;
-			levelRadioButtons[1].checked = false;
+			resetAllScores();
+			resetRadioButtons();
 			localStorage.clear();
 			
 		}
@@ -876,6 +869,19 @@ window.onload = function() {
 			var newText = document.createTextNode(testName + ": " + bool.toString());
 			newParaTag.appendChild(newText);
 			testPop.appendChild(newParaTag);
+		}
+		
+		function resetRadioButtons(){
+			levelRadioButtons[0].checked = true;
+			levelRadioButtons[1].checked = false;	
+		}
+		
+		function resetAllScores(){
+			highScore = 0;
+			levelOneHighscore = 0;
+			levelTwoHighscore = 0;
+			localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
+		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
 		}
 		
 	// Testing Game Over
@@ -1009,6 +1015,22 @@ window.onload = function() {
 				}
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
+		
+		function testTimerDecrements(){
+			startGame();
+			window.clearInterval(createBugsIntervalId);
+			var currentTime = new Date().getTime();
+			var randomInt = Math.floor(3 + 8*Math.random());
+			setTimeout(
+				function(){
+					var timeRemainingNow = timeRemaining;
+					var newTime = new Date().getTime();
+					var timeLeft = 60 - ((newTime - currentTime) / 1000)
+					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
+					endGame();
+				}
+			,1000*randomInt);
+		}
 
 		function testPauseButtonRapidPressStillSpawnBug(){
 			// 	Rapidly pausing and resuming the game. If 3 seconds of game time
@@ -1094,6 +1116,7 @@ window.onload = function() {
 			testLowerScoreHighScoreHasNotChangedLevel2();
 
   			/*Since testing pause involves on set time out and set interval
+
   			We need to run the following tests in the following order*/
   			testPauseButtonDoesFreezeBugAndTimer();
 			setTimeout(testPauseButtonRapidPressStillSpawnBug, BASE_TESTING_TIME);
