@@ -1122,6 +1122,28 @@ window.onload = function() {
   		}
   		sequentialTestCallList.push(testPauseButtonRapidPressStillSpawnBug);
 
+  		function testPauseedCantKillBug(){
+  			levelRadioButtons[1].checked = false;
+			levelRadioButtons[0].checked = true;
+			startGame();
+			pauseUnpause();
+			var initialBugListLength = bugList.length;
+			//kill all the bugs
+			for (var i = bugList.length - 1; i >= 0; i--) {
+				var clientX = bugList[i].bugX + viewPortCanvas.offsetLeft;
+				var clientY = bugList[i].bugY + viewPortCanvas.offsetTop;
+				var evt = document.createEvent("MouseEvents");
+				evt.initMouseEvent("click", true, true, window,
+					0, 0, 0, clientX, clientY, false, false, false, false, 0, null);
+				document.body.dispatchEvent(evt);
+			};
+			var didntKill = (initialBugListLength === bugList.length);
+			assert(getFunctionName(), didntKill);
+			pauseUnpause();
+			endGame();
+  		}
+  		sequentialTestCallList.push(testPauseedCantKillBug);
+
   		function testUnPauseButtonDoesFreeBugAndTimer(){
 			// Click pause button to see if all bugs have stopped.
 			// Check to see that the timer has stopped.
