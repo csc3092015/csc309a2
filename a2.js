@@ -31,6 +31,10 @@ window.onload = function() {
 	var bugToFadeList = [];
 	var createBugsIntervalId;
 	var reDrawObjectsIntervalId;
+	var testLog = document.getElementById("testLog");
+	var testPop = document.getElementById("testPop");
+	var testPage = document.getElementById("testPage");
+	var levelRadioButtons = levelForm.elements["levelRadioButton"];
 
 	// CONSTANT
 	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
@@ -69,9 +73,6 @@ window.onload = function() {
         createBugs();
         reDrawObjects();
         resetTimeRemaining();
-		// Testing
-		testFoodEatenGameOver();
-		testTimeGoneGameOver();
 	}
 
 	function pauseUnpause(){
@@ -114,7 +115,9 @@ window.onload = function() {
 		window.clearInterval(createBugsIntervalId);
 		window.clearInterval(reDrawObjectsIntervalId);
 		dropAll();
-		calculateAndSetHighScore();
+		getLevel();
+		calculateHighScore();
+		setHighScore();
 		resetTimeRemaining();
 		gameOverPopup();
 		resetScore();
@@ -134,7 +137,6 @@ window.onload = function() {
 	}
 
 	var getLevel = function() {
-		var levelRadioButtons = levelForm.elements["levelRadioButton"];
 		for (var i = 0; i < levelRadioButtons.length; i++) {
 			if(levelRadioButtons[i].checked){
 				level = levelRadioButtons[i].value;
@@ -183,25 +185,17 @@ window.onload = function() {
 		}
 	}
 	
-	function calculateAndSetHighScore(){
-		getLevel();
+	function calculateHighScore(){
 		if(level == 1 && score > levelOneHighscore){
 			levelOneHighscore = score;
 		}
 		else if(score > levelTwoHighscore){
 			levelTwoHighscore = score;
 		}
-		setHighScore();
 	}
 	
 	function setHighScore(){
 		getLevel();
-		if(level == 1){
-			highScore = levelOneHighscore;
-		}
-		else{
-			highScore = levelTwoHighscore;
-		}
 		// Check browser support
 		if (typeof(Storage) != "undefined") {
 		    // Store
@@ -822,37 +816,148 @@ window.onload = function() {
 	****                         TESTING				***********
 	***************************************************************/
 	
-	testFoodEatenGameOver = false;
-	testTimeGoneGameOver = true;
-	
+	function testGame(){
+		function setup(){
+			testPage.style.display = "block";
+			localStorage.clear();
+			var newParaTag = document.createElement("p");
+			var newText = document.createTextNode("Test Log");
+			newParaTag.appendChild(newText);
+			testPop.appendChild(newParaTag);	
+		}
+		
+		function takeDown(){
+			localStorage.clear();
+			
+		}
+		
+		function assert(testName, bool){
+			var newParaTag = document.createElement("p");
+			var newText = document.createTextNode(testName + ": " + bool.toString());
+			newParaTag.appendChild(newText);
+			testPop.appendChild(newParaTag);
+		}
+		
 	// Testing Game Over
 	
 		// When food is gone
 		
 		function testFoodEatenGameOver(){
-			if(testFoodEatenGameOver){
-				foodList = [];
-				alert("Check that game over popup appears, timer stops, bugs stop moving, no more bugs are created, you cannot kill anymore bugs and you cannot press the pause button");	
-			}
+			startGame();
+			foodList = [];
+			assert("testFoodEatenGameOver", isGameOver() == true);
+			endGame();
 		}
 		// Game Over popup should appear after this
 		
 		// When time remaining is 0
 		function testTimeGoneGameOver(){
-			if(testTimeGoneGameOver){
-				timeRemaining = 0;	
-				alert("Check that game over popup appears, timer stops, bugs stop moving, no more bugs are created, you cannot kill anymore bugs and you cannot press the pause button");
-			}
+			startGame();
+			timeRemaining = 0;	
+			assert("testTimeGoneGameOver", isGameOver() == true);
+			endGame();
 		}
 		
+	// Testing High Score
+	
+		// Check if initially, high score is 0
+		function testInitialHighScoreValue(){
+			localStorage.clear();
+			resetScore();
+			assert("testInitialHighScoreValue-highScore", highScore == 0);
+			assert("testInitialHighScoreValue-LevelOneHighScore", levelOneHighscore == 0);
+			assert("testInitialHighScoreValue-LevelTwoHighScore", levelTwoHighscore == 0);
+			localStorage.clear();
+			resetScore();
+		}
 		
+		// Check if high score for level one registers
+		function testHighScoreValueLevel1(){
+			localStorage.clear();
+			resetScore();
+			levelRadioButtons[0].checked = true;
+			levelRadioButtons[1].checked = false;
+			score = 100;
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			var highScoreText = highScorePara.innerHTML;
+			assert("testHighScoreValueLevel1", "High Score: 100" == highScoreText);
+			localStorage.clear();
+			resetScore();
+		}
 		
+		// Check if high score for level two registers
+		function testHighScoreValueLevel2(){
+			localStorage.clear();
+			resetScore();
+			levelRadioButtons[0].checked = false;
+			levelRadioButtons[1].checked = true;
+			score = 200;
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			var highScoreText = highScorePara.innerHTML;
+			assert("testHighScoreValueLevel2", "High Score: 200" == highScoreText);
+			localStorage.clear();
+			resetScore();
+		}
+		
+		// Check if high score for level one doesn't change because of a lower score
+		function testLowerScoreHighScoreHasNotChangedLevel1(){
+			localStorage.clear();
+			resetScore();
+			levelRadioButtons[0].checked = true;
+			levelRadioButtons[1].checked = false;
+			score = 400;
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			var highScoreText = highScorePara.innerHTML;
+
+			score = 100;
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			highScoreText = highScorePara.innerHTML;
+			assert("testLowerScoreHighScoreHasNotChangedLevel1", "High Score: 400" == highScoreText);
+			localStorage.clear();
+			resetScore();
+		}
+		
+		// Check if high score for level two doesn't change because of a lower score
+		function testLowerScoreHighScoreHasNotChangedLevel2(){
+			localStorage.clear();
+			resetScore();
+			levelRadioButtons[0].checked = false;
+			levelRadioButtons[1].checked = true;
+			score = 300;
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			var highScoreText = highScorePara.innerHTML;
+
+			score = 100;
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			highScoreText = highScorePara.innerHTML;
+			assert("testLowerScoreHighScoreHasNotChangedLevel2", "High Score: 300" == highScoreText);
+			localStorage.clear();
+			resetScore();
+		}
+		
+		setup();
+		testFoodEatenGameOver();
+		testTimeGoneGameOver();
+		testInitialHighScoreValue();	
+		testHighScoreValueLevel1();
+		testHighScoreValueLevel2();
+		testLowerScoreHighScoreHasNotChangedLevel1();
+		testLowerScoreHighScoreHasNotChangedLevel2();
+		takeDown();	
 	
+	}	
 	
-	
-	
-	
-	
-	
-	
+	testGame();
 }
