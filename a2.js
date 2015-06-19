@@ -974,7 +974,6 @@ window.onload = function() {
 			getLevel();
 			calculateHighScore();
 			setHighScore();
-			alert(level);
 			var highScoreText = highScorePara.innerHTML;
 			assert(getFunctionName(), "High Score: 300" == highScoreText);
 			localStorage.clear();
