@@ -1148,6 +1148,22 @@ window.onload = function() {
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
 		sequentialTestCallList.push(testUnPauseButtonDoesFreeBugAndTimer);
+
+		function testUnPauseButtonDoesSpawnNewBug(){
+			// Check that new bugs are being created by waiting at least 3 seconds.
+			levelRadioButtons[0].checked = false;
+			levelRadioButtons[1].checked = true;
+			startGame();
+			pauseUnpause();
+			pauseUnpause();
+			setTimeout(
+				function(){
+					var spawnNewbug = (bugList.length > 0);
+					assert("testUnPauseButtonDoesSpawnNewBug", spawnNewbug);
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+		}
+		sequentialTestCallList.push(testUnPauseButtonDoesSpawnNewBug);
 		
 		function testTimerStopsAtZero(){
 			testingTimerStopsAtZero = true;
