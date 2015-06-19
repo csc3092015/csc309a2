@@ -1289,6 +1289,7 @@ window.onload = function() {
 		sequentialTestCallList.push(testBugsStopBeingCreatedAtGameOver);
 		
 		function testGameOverPauseButtonStopFunctioning(){
+			setRadioButtonsAlternate();
 			startGame();
 			endGame();
 			pauseUnpause();
