@@ -829,7 +829,7 @@ window.onload = function() {
 			levelTwoHighscore = 0;
 			testPage.style.display = "block";
 			localStorage.clear();
-			var newParaTag = document.createElement("p");
+			var newParaTag = document.createElement("h1");
 			var newText = document.createTextNode("Test Log");
 			newParaTag.appendChild(newText);
 			testPop.appendChild(newParaTag);
