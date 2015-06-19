@@ -1001,7 +1001,7 @@ window.onload = function() {
 						endGame();
 					}, (1000/FRAME_RATE)*3);
 				}
-				, 1000*3);
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
 
 		function startTest() {
