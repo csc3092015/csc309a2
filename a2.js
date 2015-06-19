@@ -834,6 +834,8 @@ window.onload = function() {
 		var saveHighScore;
 		var saveLevelOneHighscore;
 		var saveLevelTwoHighscore;
+		var numFail = 0;
+		var numPass = 0;
 
 		function setup(){
 			testing = true;
@@ -845,6 +847,7 @@ window.onload = function() {
 			var newParaTag = document.createElement("h1");
 			var newText = document.createTextNode("Test Log");
 			newParaTag.appendChild(newText);
+			newParaTag.id = "title";
 			testPop.appendChild(newParaTag);
 		}
 
@@ -879,6 +882,14 @@ window.onload = function() {
 			var newParaTag = document.createElement("p");
 			var newText = document.createTextNode(testName + ": " + bool.toString());
 			newParaTag.appendChild(newText);
+			if(bool || testName === "Tests Succeeded"){
+				newParaTag.id = "pass";	
+				numPass++;
+			}
+			else{
+				newParaTag.id = "fail";
+				numFail++;
+			}
 			testPop.appendChild(newParaTag);
 		}
 		
@@ -1152,16 +1163,27 @@ window.onload = function() {
 			startGame();
 			window.clearInterval(createBugsIntervalId);
 			endGame();
-			var now = new Date().getTime();
+			var now = timeRemaining;
 			var later;
 			setTimeout(
 				function(){
-					later = new Date().getTime();
+					later = timeRemaining;
 					assert("testTimerStopsAtGameOver", now === later);
 				}
 			, 3000);	
 		}
 		
+		function testBugsStopBeingCreatedAtGameOver(){
+			startGame();
+			setTimeout(pauseUnpause, 4000);
+			endGame();
+			assert("testBugsStopBeingCreatedAtGameOver", bugList.length === 0);
+		}
+		
+		function displayPassFailStats(){
+			assert("Tests Succeeded", numPass);
+			assert("Tests Failed", numFail);
+		}
 		
 		
 		function startTest() {
@@ -1178,7 +1200,7 @@ window.onload = function() {
 
   			We need to run the following tests in the following order*/
   			
-  			var listTests = [testPauseButtonDoesFreezeBugAndTimer, testPauseButtonRapidPressStillSpawnBug, testUnPauseButtonDoesFreeBugAndTimer, testTimerDecrements, testTimerStopsAtZero, testTimerStopsAtGameOver, takeDown, reloadPage];
+  			var listTests = [testPauseButtonDoesFreezeBugAndTimer, testPauseButtonRapidPressStillSpawnBug, testUnPauseButtonDoesFreeBugAndTimer, testTimerDecrements, testTimerStopsAtZero, testTimerStopsAtGameOver, testBugsStopBeingCreatedAtGameOver, displayPassFailStats, takeDown, reloadPage];
   			
   			for(i = 0; i < listTests.length; i++){
 	  			setTimeout(listTests[i], BASE_TESTING_TIME*i);
