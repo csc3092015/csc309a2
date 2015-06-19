@@ -1078,7 +1078,7 @@ window.onload = function() {
   			We need to run the following tests in the following order*/
   			testPauseButtonDoesFreezeBugAndTimer();
 			setTimeout(testPauseButtonRapidPressStillSpawnBug, BASE_TESTING_TIME);
-			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, BASE_TESTING_TIME * 2);
+			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, BASE_TESTING_TIME*2);
 			takeDown();	
 		}
 		
