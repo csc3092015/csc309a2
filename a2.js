@@ -252,6 +252,11 @@ window.onload = function() {
 			return list;
 	}
 
+	function getDistance(x1, y1, x2, y2){
+		deltaX = x1 - x2;
+		deltaY = y1 - y2;
+		return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
+	}
 
 	function getFunctionName() {
 		/*http://www.esqsoft.com/javascript/functions/how-to-get-function-name-from-itself.htm*/
@@ -1241,14 +1246,19 @@ window.onload = function() {
 	// Bug and Food Behavior
 		function testBugTargetRightFood(){
 			setRadioButtonsAlternate();
-			// startGame();
-			// setTimeout(
-			// 	function(){
-			// 		if(bugList.length > 0){
+			startGame();
+			var correctlyTarget = false;
+			setTimeout(
+				function(){
+					if(bugList.length > 0){
+						var foodTarget = bugList[0].bugFoodTarget;
 
-			// 		}
-			// 	}
-			// 	, BUG_SPAWN_UPPER_BOUND_MILLIE);
+					} else {
+						assert("testBugTargetRightFood", correctlyTarget);
+						endGame();
+					}
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 
 		}
 
