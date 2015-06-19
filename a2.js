@@ -1140,7 +1140,7 @@ window.onload = function() {
   		}
   		sequentialTestCallList.push(testPauseButtonRapidPressStillSpawnBug);
 
-  		function testPauseedCantKillBug(){
+  		function testPausedCantKillBug(){
   			setRadioButtonsAlternate();
 			startGame();
 			pauseUnpause();
@@ -1159,7 +1159,7 @@ window.onload = function() {
 			pauseUnpause();
 			endGame();
   		}
-  		sequentialTestCallList.push(testPauseedCantKillBug);
+  		sequentialTestCallList.push(testPausedCantKillBug);
 
   		function testUnPauseButtonDoesFreeBugAndTimer(){
 			// Click pause button to see if all bugs have stopped.
@@ -1287,6 +1287,14 @@ window.onload = function() {
 			assert("testBugsStopBeingCreatedAtGameOver", bugList.length === 0);
 		}
 		sequentialTestCallList.push(testBugsStopBeingCreatedAtGameOver);
+		
+		function testGameOverPauseButtonStopFunctioning(){
+			startGame();
+			endGame();
+			pauseUnpause();
+			assert(getFunctionName(), pauseButton.innerHTML === "Pause");
+		}
+		sequentialTestCallList.push(testGameOverPauseButtonStopFunctioning);
 		
 		function displayPassFailStats(){
 			assert("Tests Succeeded", numPass);
