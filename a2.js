@@ -1268,7 +1268,6 @@ window.onload = function() {
 				function(){
 					var pass = true;
 					for(i = 0; i < bugList.length; i++){
-						alert("bugType: " + bugList[i].bugType + " bugSpeed" + bugList[i].bugSpeed);
 						if(bugList[i].bugType === "red"){
 							if (level === 1) {
 								pass = pass && (bugList[i].bugSpeed === 75);
