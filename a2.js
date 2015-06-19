@@ -826,7 +826,7 @@ window.onload = function() {
 	***************************************************************/
 	
 	function testGame(){
-		var BASE_TESTING_TIME = 50000;
+		var CURRENT_TESTING_TIME, BASE_TESTING_TIME = 5000;
 
 
 		function setup(){
@@ -990,31 +990,6 @@ window.onload = function() {
 			localStorage.clear();
 			resetScore();
 		}
-
-		function testPauseButtonDoesFreezeBugAndTimer(){
-			// Click pause button to see if all bugs have stopped.
-			// Check to see that the timer has stopped.
-			levelRadioButtons[0].checked = false;
-			levelRadioButtons[1].checked = true;
-			startGame();
-			setTimeout(
-				function() {
-					pauseUnpause();
-					var sampleBug = bugList[0];
-					var sampleBugInitalX = sampleBug.bugX;
-					var sampleBugInitalY = sampleBug.bugY;
-					var initialTimeRemaining = timeRemaining;
-					setTimeout(function(){
-						var freezeBug = (sampleBugInitalX === sampleBug.bugX) && (sampleBugInitalY === sampleBug.bugY);
-						assert("testPauseButtonDoesFreezeBug", freezeBug);
-						var freezeTime = (initialTimeRemaining === timeRemaining);
-						assert("testPauseButtonDoesFreezeTime", freezeTime);
-						pauseUnpause();
-						endGame();
-					}, (1000/FRAME_RATE)*3);
-				}
-				, BUG_SPAWN_UPPER_BOUND_MILLIE);
-		}
 		
 		function testTimerDecrements(){
 			startGame();
@@ -1030,6 +1005,33 @@ window.onload = function() {
 					endGame();
 				}
 			,1000*randomInt);
+		}
+
+		function testPauseButtonDoesFreezeBugAndTimer(){
+			// Click pause button to see if all bugs have stopped.
+			// Check to see that the timer has stopped.
+			levelRadioButtons[0].checked = false;
+			levelRadioButtons[1].checked = true;
+			startGame();
+			setTimeout(
+				function() {
+					if(bugList.length > 0){
+						pauseUnpause();
+						var sampleBug = bugList[0];
+						var sampleBugInitalX = sampleBug.bugX;
+						var sampleBugInitalY = sampleBug.bugY;
+						var initialTimeRemaining = timeRemaining;
+						setTimeout(function(){
+							var freezeBug = (sampleBugInitalX === sampleBug.bugX) && (sampleBugInitalY === sampleBug.bugY);
+							assert("testPauseButtonDoesFreezeBug", freezeBug);
+							var freezeTime = (initialTimeRemaining === timeRemaining);
+							assert("testPauseButtonDoesFreezeTime", freezeTime);
+							pauseUnpause();
+							endGame();
+						}, (1000/FRAME_RATE)*3);
+					}
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
 
 		function testPauseButtonRapidPressStillSpawnBug(){
@@ -1063,6 +1065,34 @@ window.onload = function() {
 
   		}
 
+  		function testUnPauseButtonDoesFreeBugAndTimer(){
+			// Click pause button to see if all bugs have stopped.
+			// Check to see that the timer has stopped.
+			levelRadioButtons[0].checked = false;
+			levelRadioButtons[1].checked = true;
+			startGame();
+			setTimeout(
+				function() {
+					if(bugList.length > 0){
+						pauseUnpause();
+						var sampleBug = bugList[0];
+						var sampleBugInitalX = sampleBug.bugX;
+						var sampleBugInitalY = sampleBug.bugY;
+						var initialTimeRemaining = timeRemaining;
+						pauseUnpause();
+						setTimeout(function(){
+							var freeBug = (sampleBugInitalX !== sampleBug.bugX) && (sampleBugInitalY !== sampleBug.bugY);
+							assert("testUnPauseButtonDoesFreeBug", freeBug);
+							var freeTime = (initialTimeRemaining !== timeRemaining);
+							assert("testUnPauseButtonDoesFreeTime", freeTime);
+							pauseUnpause();
+							endGame();
+						}, (1000/FRAME_RATE)*3);
+					}
+				}
+				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+		}
+
 		function startTest() {
 			setup();
 			testFoodEatenGameOver();
@@ -1072,13 +1102,15 @@ window.onload = function() {
 			testHighScoreValueLevel2();
 			testLowerScoreHighScoreHasNotChangedLevel1();
 			testLowerScoreHighScoreHasNotChangedLevel2();
+			
 
   			/*Since testing pause involves on set time out and set interval
-
-  			We need to run the following tests in the following order*/
-  			testPauseButtonDoesFreezeBugAndTimer();
-			setTimeout(testPauseButtonRapidPressStillSpawnBug(), 60000);
-			testTimerDecrements();
+  			We need to run the following tests in the following order
+  			the first one doesn't need set time*/
+  			testTimerDecrements();
+			setTimeout(testPauseButtonDoesFreezeBugAndTimer, CURRENT_TESTING_TIME+=BASE_TESTING_TIME);
+			setTimeout(testUnPauseButtonDoesFreeBugAndTimer, CURRENT_TESTING_TIME+=BASE_TESTING_TIME);
+			setTimeout(testPauseButtonRapidPressStillSpawnBug, CURRENT_TESTING_TIME+=BASE_TESTING_TIME);
 			takeDown();	
 		}
 		
