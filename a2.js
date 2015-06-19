@@ -25,6 +25,7 @@ window.onload = function() {
 	var highScorePara = document.getElementById("highScore");
 	var scorePopPara = document.getElementById("scorePop");
 	var timePara = document.getElementById("timeLeft");
+	var loadingIcon = document.getElementById("loadingIcon");
 	var viewPortContext = viewPortCanvas.getContext("2d");
 	var bugList = [];
 	var foodList = [];
@@ -58,6 +59,8 @@ window.onload = function() {
 	var BUG_SPAWN_LOWER_BOUND_MILLIE = 1000;
 	var BUG_SPAWN_UPPER_BOUND_MILLIE = 3000;
 	var GAME_HEIGHT = 600;
+	var LOADING_ICON_SRC = "img/loading.gif";
+	var LOADING_ICON_ALT = "test is still ongoing";
 
 	// GLOBAL VARIBALE DEPEND ON CONSTANT
 	var timeRemaining = DEFAULT_GAME_LENGTH_SEC;
@@ -830,10 +833,14 @@ window.onload = function() {
 	***************************************************************/
 	
 	function testGame(){
+		// CONSTANTS
 		var BASE_TESTING_TIME = 5000;
+
+		// testGame GLOBAL VAR
 		var saveHighScore;
 		var saveLevelOneHighscore;
 		var saveLevelTwoHighscore;
+		var sequentialTestCallList = [];
 		var numFail = 0;
 		var numPass = 0;
 
@@ -849,6 +856,12 @@ window.onload = function() {
 			newParaTag.appendChild(newText);
 			newParaTag.id = "title";
 			testPop.appendChild(newParaTag);
+			// add loading icon
+			/*http://www.mulberrylove.com/skin/frontend/mulberry/default/images/loading.gif*/
+			var img = document.createElement('img');
+			img.src = LOADING_ICON_SRC;
+			img.alt = LOADING_ICON_ALT;
+			loadingIcon.appendChild(img);
 		}
 
 		function testButtonToggle(){
@@ -864,12 +877,11 @@ window.onload = function() {
 		}
 
 		function testPopClear() {
-			while(testPop.lastChild){
-				testPop.removeChild(testPop.lastChild);
-			}
+			removeAllChildren(testPop);
 		}
 		
 		function takeDown(){
+			removeAllChildren(loadingIcon);
 			resetAllScores();
 			resetRadioButtons();
 			localStorage.clear();
@@ -920,8 +932,12 @@ window.onload = function() {
 		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
 		}
 		
-		function reloadPage(){
-			location.reload();
+		function addReloadPageButton(){
+			var refreshButton = document.createElement("BUTTON");        
+			var refreshButtonText = document.createTextNode("Refresh");       
+			refreshButton.appendChild(refreshButtonText);
+			refreshButton.onclick = function(){location.reload();};                           
+			testPop.appendChild(refreshButton);
 		}
 		
 	// Testing Game Over
@@ -1031,6 +1047,22 @@ window.onload = function() {
 			resetScore();
 		}
 
+		function testTimerDecrements(){
+			startGame();
+			window.clearInterval(createBugsIntervalId);
+			var currentTime = new Date().getTime();
+			setTimeout(
+				function(){
+					var timeRemainingNow = timeRemaining;
+					var newTime = new Date().getTime();
+					var timeLeft = 60 - ((newTime - currentTime) / 1000)
+					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
+					endGame();
+				}
+				, 3000);
+		}
+		sequentialTestCallList.push(testTimerDecrements);
+
 		function testPauseButtonDoesFreezeBugAndTimer(){
 			// Click pause button to see if all bugs have stopped.
 			// Check to see that the timer has stopped.
@@ -1055,22 +1087,9 @@ window.onload = function() {
 				}
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
+		sequentialTestCallList.push(testPauseButtonDoesFreezeBugAndTimer);
 		
-		function testTimerDecrements(){
-			startGame();
-			window.clearInterval(createBugsIntervalId);
-			var currentTime = new Date().getTime();
-			var randomInt = Math.floor(3 + 8*Math.random());
-			setTimeout(
-				function(){
-					var timeRemainingNow = timeRemaining;
-					var newTime = new Date().getTime();
-					var timeLeft = 60 - ((newTime - currentTime) / 1000)
-					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
-					endGame();
-				}
-			,1000*randomInt);
-		}
+
 
 		function testPauseButtonRapidPressStillSpawnBug(){
 			// 	Rapidly pausing and resuming the game. If 3 seconds of game time
@@ -1100,8 +1119,8 @@ window.onload = function() {
 					}
 				}
 				, 1000/timePressedPersecond);
-
   		}
+  		sequentialTestCallList.push(testPauseButtonRapidPressStillSpawnBug);
 
   		function testUnPauseButtonDoesFreeBugAndTimer(){
 			// Click pause button to see if all bugs have stopped.
@@ -1128,21 +1147,7 @@ window.onload = function() {
 				}
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
-
-		function testTimerDecrements(){
-			startGame();
-			window.clearInterval(createBugsIntervalId);
-			var currentTime = new Date().getTime();
-			setTimeout(
-				function(){
-					var timeRemainingNow = timeRemaining;
-					var newTime = new Date().getTime();
-					var timeLeft = 60 - ((newTime - currentTime) / 1000)
-					assert("testTimerDecrements", Math.abs(timeLeft - timeRemainingNow) < 1);
-					endGame();
-				}
-				, 3000);
-		}
+		sequentialTestCallList.push(testUnPauseButtonDoesFreeBugAndTimer);
 		
 		function testTimerStopsAtZero(){
 			testingTimerStopsAtZero = true;
@@ -1157,6 +1162,7 @@ window.onload = function() {
 				}
 			, 2000);
 		}
+		sequentialTestCallList.push(testTimerStopsAtZero);
 		
 	// Game Over Integrity	
 		function testTimerStopsAtGameOver(){
@@ -1172,6 +1178,7 @@ window.onload = function() {
 				}
 			, 3000);	
 		}
+		sequentialTestCallList.push(testTimerStopsAtGameOver);
 		
 		function testBugsStopBeingCreatedAtGameOver(){
 			startGame();
@@ -1179,12 +1186,19 @@ window.onload = function() {
 			endGame();
 			assert("testBugsStopBeingCreatedAtGameOver", bugList.length === 0);
 		}
+		sequentialTestCallList.push(testBugsStopBeingCreatedAtGameOver);
 		
 		function displayPassFailStats(){
 			assert("Tests Succeeded", numPass);
 			assert("Tests Failed", numFail);
 		}
-		
+		sequentialTestCallList.push(displayPassFailStats);
+
+		function removeAllChildren(node){
+			while(node.lastChild){
+				node.removeChild(node.lastChild);
+			}
+		}
 		
 		function startTest() {
 			setup();
@@ -1197,15 +1211,12 @@ window.onload = function() {
 			testLowerScoreHighScoreHasNotChangedLevel2();
 
   			/*Since testing pause involves on set time out and set interval
-
   			We need to run the following tests in the following order*/
-  			
-  			var listTests = [testPauseButtonDoesFreezeBugAndTimer, testPauseButtonRapidPressStillSpawnBug, testUnPauseButtonDoesFreeBugAndTimer, testTimerDecrements, testTimerStopsAtZero, testTimerStopsAtGameOver, testBugsStopBeingCreatedAtGameOver, displayPassFailStats, takeDown, reloadPage];
-  			
-  			for(i = 0; i < listTests.length; i++){
-	  			setTimeout(listTests[i], BASE_TESTING_TIME*i);
+  			sequentialTestCallList.push(takeDown);
+  			sequentialTestCallList.push(addReloadPageButton);
+  			for(i = 0; i < sequentialTestCallList.length; i++){
+	  			setTimeout(sequentialTestCallList[i], BASE_TESTING_TIME*i);
   			}
-  			
 		}
 		
 		testButtonToggle();
