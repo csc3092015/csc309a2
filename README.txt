@@ -138,7 +138,7 @@ Testing Pause Button
 2. To check if we can resume from pause, we did this:
 - Click on resume button and check if all the bugs start moving again.
 - Check that the timer is moving again from the paused time.
-- Check that new bugs are being created by waiting at least 4 seconds.
+- Check that new bugs are being created by waiting at least 3 seconds.
 
 3. Checking the integrity of the pause button.
 - See that when paused, bugs cannot be killed.
