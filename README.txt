@@ -131,7 +131,8 @@ Testing Pause Button
 
 1. To check if the pause button functioned correctly, we did this:
 - Click pause button to see if all bugs have stopped.
-- Wait 4 seconds to see if any bugs have been created.
+- Rapidly pausing and resuming the game. If 3 seconds of game time
+  has passed, check if there is at least one more bug appearing
 - Check to see that the timer has stopped.
 
 2. To check if we can resume from pause, we did this:
