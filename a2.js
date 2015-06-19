@@ -823,6 +823,9 @@ window.onload = function() {
 	***************************************************************/
 	
 	function testGame(){
+		var BASE_TESTING_TIME = 50000;
+
+
 		function setup(){
 			highScore = 0;
 			levelOneHighscore = 0;
@@ -1004,6 +1007,37 @@ window.onload = function() {
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
 
+		function testPauseButtonRapidPressStillSpawnBug(){
+			// 	Rapidly pausing and resuming the game. If 3 seconds of game time
+  			// has passed, check if there is at least one more bug appearing
+  			levelRadioButtons[0].checked = false;
+  			levelRadioButtons[1].checked = true;
+  			startGame();
+  			var initialTime = new Date().getTime();
+  			var timePressedPersecond = 10;
+  			var oddPausedTime = false;
+  			var rapidPressIntervalId = setInterval(
+  				function (){
+  					pauseUnpause();
+  					oddPausedTime = !oddPausedTime;
+  					if(bugList.length > 0) {
+  						var findBugTime = new Date().getTime();
+  						var bugSpawnTime = findBugTime - initialTime;
+  						var pauseToggleDurationUpperBoundMillie = 100;
+  						var stillSpawnBug = (bugSpawnTime < (BUG_SPAWN_UPPER_BOUND_MILLIE + pauseToggleDurationUpperBoundMillie));
+  						assert("testPauseButtonRapidPressStillSpawnBug", stillSpawnBug);
+  						if(oddPausedTime){
+							// although it works even we endGame when paused, but 
+							pauseUnpause();
+						}
+						endGame();
+						window.clearInterval(rapidPressIntervalId);
+					}
+				}
+				, 1000/timePressedPersecond);
+
+  		}
+
 		function startTest() {
 			setup();
 			testFoodEatenGameOver();
@@ -1013,7 +1047,11 @@ window.onload = function() {
 			testHighScoreValueLevel2();
 			testLowerScoreHighScoreHasNotChangedLevel1();
 			testLowerScoreHighScoreHasNotChangedLevel2();
-			testPauseButtonDoesFreezeBugAndTimer();
+
+  			/*Since testing pause involves on set time out and set interval
+  			We need to run the following tests in the following order*/
+  			testPauseButtonDoesFreezeBugAndTimer();
+			setTimeout(testPauseButtonRapidPressStillSpawnBug(), 60000);
 			takeDown();	
 		}
 		
