@@ -882,7 +882,9 @@ window.onload = function() {
 			newParaTag.classList.add("title");
 			testPop.appendChild(newParaTag);
 			newParaTag = document.createElement("p");
-			newText = document.createTextNode("Please do not refresh or close page until testing is finished.");
+			newText = document.createTextNode(
+				"Please do not refresh or close page until testing is finished." 
+				+ " This takes about 3 min");
 			newParaTag.appendChild(newText);
 			newParaTag.classList.add("title");
 			testPop.appendChild(newParaTag);
@@ -1351,6 +1353,51 @@ window.onload = function() {
 			assert(getFunctionName(), pauseButton.innerHTML === "Pause");
 		}
 		sequentialTestCallList.push(testGameOverPauseButtonStopFunctioning);
+
+		function testBugsMoveAtRightSpeed(){
+			testingBugsMoveAtRightSpeed = true;
+			setRadioButtonsAlternate();
+			startGame();
+			setTimeout(
+				function(){
+					var correctSpeed = false;
+					for(i = 0; i < bugList.length; i++){
+						if(!correctSpeed && i!=0){
+							break;
+						}
+						else if(bugList[i].bugType === "red"){
+							if (level === 1) {
+								correctSpeed = (bugList[i].bugSpeed === 75);
+							} else {
+								correctSpeed = (bugList[i].bugSpeed === 100);
+							}
+						}
+						else if(bugList[i].bugType === "black"){
+							if (level === 1) {
+								correctSpeed = (bugList[i].bugSpeed === 150);
+							} else {
+								correctSpeed = (bugList[i].bugSpeed === 200);
+							}
+						}
+						else if(bugList[i].bugType === "orange"){
+							if (level === 1) {
+								correctSpeed = (bugList[i].bugSpeed === 60);
+							} else {
+								correctSpeed = (bugList[i].bugSpeed === 80);
+							}
+						}
+						else {
+							correctSpeed = false;
+							break;
+						}
+					}
+					assert("testBugsMoveAtRightSpeed", correctSpeed);
+					testingBugsMoveAtRightSpeed = correctSpeed;
+					endGame();
+				}
+			, BUG_SPAWN_UPPER_BOUND_MILLIE);
+		}
+		sequentialTestCallList.push(testBugsMoveAtRightSpeed);
 		
 		function displayPassFailStats(){
 			assert("Tests Succeeded", numPass);
