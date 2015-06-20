@@ -857,6 +857,8 @@ window.onload = function() {
 		var BASE_TESTING_TIME = 6000;
 
 		// testGame GLOBAL VAR
+		var saveRadioButtonLevelOneChecked;
+		var saveRadioButtonLevelTwoChecked;
 		var saveHighScore;
 		var saveLevelOneHighscore;
 		var saveLevelTwoHighscore;
@@ -908,6 +910,7 @@ window.onload = function() {
 			testing = false;
 			assert("Testing Done", true);
 			loadAllScores();
+			addReloadPageButton();
 		}
 		
 		function assert(testName, bool){
@@ -955,6 +958,8 @@ window.onload = function() {
 			saveHighScore = highScore;
 			saveLevelOneHighscore = levelOneHighscore;
 			saveLevelTwoHighscore = levelTwoHighscore;
+			saveRadioButtonLevelOneChecked = levelRadioButtons[0].checked;
+			saveRadioButtonLevelTwoChecked = levelRadioButtons[1].checked;
 		}
 		
 		function loadAllScores(){
@@ -963,6 +968,8 @@ window.onload = function() {
 			levelTwoHighscore = saveLevelTwoHighscore;
 			localStorage.setItem(LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY, levelOneHighscore);
 		    localStorage.setItem(LEVEL2_HIGH_SCORE_LOCAL_STORAGE_KEY, levelTwoHighscore);
+		    levelRadioButtons[0].checked = saveRadioButtonLevelOneChecked;
+			levelRadioButtons[1].checked = saveRadioButtonLevelTwoChecked;
 		}
 		
 		function addReloadPageButton(){
@@ -1362,7 +1369,6 @@ window.onload = function() {
   			/*Since testing pause involves on set time out and set interval
   			We need to run the following tests in the following order*/
   			sequentialTestCallList.push(takeDown);
-  			sequentialTestCallList.push(addReloadPageButton);
   			for(i = 0; i < sequentialTestCallList.length; i++){
 	  			setTimeout(sequentialTestCallList[i], BASE_TESTING_TIME*i);
   			}
