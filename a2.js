@@ -39,7 +39,7 @@ window.onload = function() {
 	var testButtonPressed = false;
 	var testing = false;
 	var testingTimerStopsAtZero = false;
-	var testingBugsMoveAtRightSpeed
+	var testingBugsMoveAtRightSpeed = false;
 
 	// CONSTANT
 	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
@@ -870,6 +870,7 @@ window.onload = function() {
 			img.src = LOADING_ICON_SRC;
 			img.alt = LOADING_ICON_ALT;
 			loadingIcon.appendChild(img);
+			alert("Please do not refresh or close page until testing is finished.");
 		}
 
 		function testButtonToggle(){
