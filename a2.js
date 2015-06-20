@@ -39,6 +39,7 @@ window.onload = function() {
 	var testButtonPressed = false;
 	var testing = false;
 	var testingTimerStopsAtZero = false;
+	var testingBugsMoveAtRightSpeed = false;
 
 	// CONSTANT
 	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
@@ -121,17 +122,19 @@ window.onload = function() {
 	}
 
 	function endGame(){
-		window.clearInterval(createBugsIntervalId);
-		window.clearInterval(reDrawObjectsIntervalId);
-		dropAll();
-		getLevel();
-		calculateHighScore();
-		setHighScore();
-		if(!testingTimerStopsAtZero){
-			resetTimeRemaining();	
+		if(!testingBugsMoveAtRightSpeed){
+			window.clearInterval(createBugsIntervalId);
+			window.clearInterval(reDrawObjectsIntervalId);
+			dropAll();
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			if(!testingTimerStopsAtZero){
+				resetTimeRemaining();	
+			}
+			gameOverPopup();
+			resetScore();	
 		}
-		gameOverPopup();
-		resetScore();
 	}
 
 	/**************************************************************
@@ -882,6 +885,7 @@ window.onload = function() {
 			img.src = LOADING_ICON_SRC;
 			img.alt = LOADING_ICON_ALT;
 			loadingIcon.appendChild(img);
+			alert("Please do not refresh or close page until testing is finished.");
 		}
 
 		function testButtonToggle(){
@@ -1297,7 +1301,7 @@ window.onload = function() {
 						endGame();
 					}
 				}
-				, BUG_SPAWN_UPPER_BOUND_MILLIE);
+			, BUG_SPAWN_UPPER_BOUND_MILLIE);
 
 		}
 		sequentialTestCallList.push(testBugTargetRightFood);
