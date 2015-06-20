@@ -21,7 +21,9 @@ created at the bottom half of the view port
 ______________________________________________________________________
 Rules:
 
-The game ends when you run out of time or the bugs eat all the food.
+The game ends when you run out of time or when the bugs eat all the food.
+
+Kill as many bugs as you can without losing all your food within 60 seconds.
 ______________________________________________________________________
 Challenges:
 
