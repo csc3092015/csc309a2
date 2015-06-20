@@ -30,6 +30,9 @@ Challenges:
 1. Writing tests that actually pass. There are many things to consider like initial conditions and which functions I can use that don’t depend on what I am testing.
 
 2. Test cases proved to be difficult when running all at once because they can actually run in parallel if you play with timeout and time interval.
+
+3. It was difficult getting the bug to be detected by the tap radius as a rectangle 
+rather than a point. We had to make cases for every edge and corner.
 ______________________________________________________________________
 Design:
 
