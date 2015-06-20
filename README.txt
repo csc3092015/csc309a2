@@ -111,7 +111,19 @@ distance depends on where the taps coordinates are.
 
 When a bug dies, it fades out, and is removed from the bug list so it
 is not drawn again.
+
+—Testing—
+
+Testing was done through a self made testing suite where we added many
+functions that used game functions with set variables to create a mock
+environment of the test we aimed to do.
+
+Synchronization of tests was done by calculating the maximum time of
+the tests and waiting that amount of time for each time dependent test
+to run before running the next one.
 ______________________________________________________________________
 END OF DOCUMENT
+
+
 
 
