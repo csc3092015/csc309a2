@@ -253,9 +253,38 @@ window.onload = function() {
 	}
 
 	function getDistance(x1, y1, x2, y2){
-		deltaX = x1 - x2;
-		deltaY = y1 - y2;
+		var deltaX = x1 - x2;
+		var deltaY = y1 - y2;
 		return Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
+	}
+
+	function findClosestFood(sx, sy){
+		//iterative var
+		var currentFood;
+		var distance;
+
+		//min var
+		var closestFood;
+		var minDistance;
+		var closestDeltaX;
+		var closestDeltaY;
+		
+		for (var i = 0; i < foodList.length; i++) {
+			currentFood = foodList[i];
+			distance = getDistance(currentFood.foodX, currentFood.foodY, sx, sy);
+			if (typeof minDistance === "undefined" || minDistance > distance) {
+				closestFood = currentFood;
+				minDistance = distance;
+				closestDeltaX = currentFood.foodX - sx;
+				closestDeltaY = currentFood.foodY - sy;
+			} 
+		}
+		return {
+			closestFood: closestFood,
+			minDistance: minDistance,
+			closestDeltaX: closestDeltaX,
+			closestDeltaY: closestDeltaY
+		};
 	}
 
 	function getFunctionName() {
@@ -387,24 +416,11 @@ window.onload = function() {
 		self.bugIncrementX;
 		self.bugIncrementY;
 		self.setClosestFood = function(){
-			var deltaX;
-			var deltaY;
-			var distance;
-			var food;
-			var minDistance;
-			for (var i = 0; i < foodList.length; i++) {
-				food = foodList[i];
-				deltaX = food.foodX - self.bugX;
-				deltaY = food.foodY - self.bugY;
-				distance = Math.sqrt(Math.pow((deltaX), 2) + Math.pow(deltaY, 2));
-				if (typeof minDistance === "undefined" || minDistance > distance) {
-					minDistance = distance;
-					self.bugClosestFoodDistance = distance;
-					self.bugClosestFood = food;
-					self.bugIncrementX = (((deltaX)/distance)*self.bugSpeed)/FRAME_RATE;
-					self.bugIncrementY = (((deltaY)/distance)*self.bugSpeed)/FRAME_RATE;
-				} 
-			}
+			var theFood = findClosestFood(self.bugX, self.bugY);
+			self.bugClosestFood = theFood.closestFood;
+			self.bugClosestFoodDistance = theFood.minDistance;
+			self.bugIncrementX = (((theFood.closestDeltaX)/theFood.minDistance)*self.bugSpeed)/FRAME_RATE;
+			self.bugIncrementY = (((theFood.closestDeltaY)/theFood.minDistance)*self.bugSpeed)/FRAME_RATE;
 		};
 		self.getDistance = function(targetX, targetY) {
 			var bugX = self.bugX;
@@ -472,7 +488,6 @@ window.onload = function() {
 		var bugType;
 		var bugSpeed;
 		var bugProbability = Math.random();
-		var bugFoodTarget;
 		var bugScore;
 		if (bugProbability < 0.3){
 			bugType = "black"; // This should be black according to handout
@@ -839,7 +854,7 @@ window.onload = function() {
 	
 	function testGame(){
 		// CONSTANTS
-		var BASE_TESTING_TIME = 5000;
+		var BASE_TESTING_TIME = 6000;
 
 		// testGame GLOBAL VAR
 		var saveHighScore;
@@ -1205,6 +1220,7 @@ window.onload = function() {
 				function(){
 					spawnNewbug = (bugList.length > 0);
 					assert("testUnPauseButtonDoesSpawnNewBug", spawnNewbug);
+					endGame();
 				}
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 		}
@@ -1236,31 +1252,55 @@ window.onload = function() {
 			setTimeout(
 				function(){
 					assert("testTimerStopsAtZero", timeRemaining === 0);	
-					endGame();
 					testingTimerStopsAtZero = false;
+					endGame();
 				}
 			, 2000);
 		}
 		sequentialTestCallList.push(testTimerStopsAtZero);
-	
+		
 	// Bug and Food Behavior
 		function testBugTargetRightFood(){
 			setRadioButtonsAlternate();
 			startGame();
 			var correctlyTarget = false;
+			var correctlyRedirected = false;
 			setTimeout(
 				function(){
-					if(bugList.length > 0){
-						var foodTarget = bugList[0].bugFoodTarget;
-
+					if(bugList.length === 0){
+						assert("testBugTargetRightFood3", correctlyTarget);
+						assert("testBugRedirectToRightFood3", correctlyRedirected);
+						endGame();
+						return;
+					}
+					var bug = bugList[0];
+					var initialFoodTarget = bug.bugClosestFood;
+					//find the closest food for this bug
+					var theFood = findClosestFood(bug.bugX, bug.bugY).closestFood;
+					correctlyTarget = (initialFoodTarget === theFood);
+					assert("testBugTargetRightFood1", correctlyTarget);
+					if (correctlyTarget){
+						// now let's see what happens if i delete that food!
+						deleteObj(initialFoodTarget, foodList);
+						// wait and see!
+						setTimeout(
+							function(){
+								var redirectedFood = bug.bugClosestFood;
+								var theRedirectedFood = findClosestFood(bug.bugX, bug.bugY).closestFood;
+								correctlyRedirected = (redirectedFood === theRedirectedFood);
+								assert("testBugRedirectToRightFood1", correctlyRedirected);
+								endGame();
+							}
+							, (1000/FRAME_RATE)*2);
 					} else {
-						assert("testBugTargetRightFood", correctlyTarget);
+						assert("testBugRedirectToRightFood2", correctlyRedirected);
 						endGame();
 					}
 				}
 				, BUG_SPAWN_UPPER_BOUND_MILLIE);
 
 		}
+		sequentialTestCallList.push(testBugTargetRightFood);
 
 	// Game Over Integrity	
 		function testTimerStopsAtGameOver(){
@@ -1279,10 +1319,10 @@ window.onload = function() {
 		}
 		sequentialTestCallList.push(testTimerStopsAtGameOver);
 		
-		function testBugsStopBeingCreatedAtGameOver(){
+		function testBugsStopBeingCreatedAtGameOver(){ 
 			setRadioButtonsAlternate();
 			startGame();
-			setTimeout(pauseUnpause, 4000);
+			setTimeout(pauseUnpause, 4000); //problem pauseUnpause doens't have Endgame
 			endGame();
 			assert("testBugsStopBeingCreatedAtGameOver", bugList.length === 0);
 		}
