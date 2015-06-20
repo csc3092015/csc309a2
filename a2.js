@@ -39,6 +39,7 @@ window.onload = function() {
 	var testButtonPressed = false;
 	var testing = false;
 	var testingTimerStopsAtZero = false;
+	var testingBugsMoveAtRightSpeed
 
 	// CONSTANT
 	var LEVEL1_HIGH_SCORE_LOCAL_STORAGE_KEY = "highScoreKey1";
@@ -121,17 +122,19 @@ window.onload = function() {
 	}
 
 	function endGame(){
-		window.clearInterval(createBugsIntervalId);
-		window.clearInterval(reDrawObjectsIntervalId);
-		dropAll();
-		getLevel();
-		calculateHighScore();
-		setHighScore();
-		if(!testingTimerStopsAtZero){
-			resetTimeRemaining();	
+		if(!testingBugsMoveAtRightSpeed){
+			window.clearInterval(createBugsIntervalId);
+			window.clearInterval(reDrawObjectsIntervalId);
+			dropAll();
+			getLevel();
+			calculateHighScore();
+			setHighScore();
+			if(!testingTimerStopsAtZero){
+				resetTimeRemaining();	
+			}
+			gameOverPopup();
+			resetScore();	
 		}
-		gameOverPopup();
-		resetScore();
 	}
 
 	/**************************************************************
@@ -1263,6 +1266,8 @@ window.onload = function() {
 		}
 		
 		function testBugsMoveAtRightSpeed(){
+			testingBugsMoveAtRightSpeed = true;
+			setRadioButtonsAlternate();
 			startGame();
 			setTimeout(
 				function(){
@@ -1291,6 +1296,7 @@ window.onload = function() {
 						}
 					}
 					assert("testBugsMoveAtRightSpeed", pass === true);
+					testingBugsMoveAtRightSpeed = false;
 					endGame();
 				}
 			, 4000);
