@@ -25,8 +25,9 @@ The game ends when you run out of time or the bugs eat all the food.
 ______________________________________________________________________
 Challenges:
 
-1. Try to get more than 100 points!
-2. Prevent the bugs from eating any of your food.
+1. Writing tests that actually pass. There are many things to consider like initial conditions and which functions I can use that don’t depend on what I am testing.
+
+2. Test cases proved to be difficult when running all at once because they can actually run in parallel if you play with timeout and time interval.
 ______________________________________________________________________
 Design:
 
