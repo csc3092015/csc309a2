@@ -879,7 +879,12 @@ window.onload = function() {
 			var newParaTag = document.createElement("h1");
 			var newText = document.createTextNode("Test Log");
 			newParaTag.appendChild(newText);
-			newParaTag.id = "title";
+			newParaTag.classList.add("title");
+			testPop.appendChild(newParaTag);
+			newParaTag = document.createElement("p");
+			newText = document.createTextNode("Please do not refresh or close page until testing is finished.");
+			newParaTag.appendChild(newText);
+			newParaTag.classList.add("title");
 			testPop.appendChild(newParaTag);
 			// add loading icon
 			/*http://www.mulberrylove.com/skin/frontend/mulberry/default/images/loading.gif*/
@@ -887,7 +892,6 @@ window.onload = function() {
 			img.src = LOADING_ICON_SRC;
 			img.alt = LOADING_ICON_ALT;
 			loadingIcon.appendChild(img);
-			alert("Please do not refresh or close page until testing is finished.");
 		}
 
 		function testButtonToggle(){
